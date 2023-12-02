@@ -13,10 +13,10 @@ use days::Day;
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
 
-    let day: Day =
-        match cli.command {
-            Commands::Day01 { gold, verbose } => days::day01::new(gold, verbose),
-        }?;
+    let day: Day = match cli.command {
+        Commands::Day01 { gold, verbose } => days::day01::new(gold, verbose),
+        Commands::Day02 => days::day02::new(),
+    }?;
 
     println!("--- Day {}: {} ---", day.number, day.title);
 

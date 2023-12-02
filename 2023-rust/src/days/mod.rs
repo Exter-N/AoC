@@ -3,6 +3,7 @@ use std::{cell::RefCell, error::Error};
 use crate::line_stream::LineStreamHandler;
 
 pub mod day01;
+pub mod day02;
 
 pub const GOLD_ANSI: &str = "\x1B[38;2;255;215;0mG\x1B[m";
 pub const SILVER_ANSI: &str = "\x1B[38;2;192;192;192mS\x1B[m";
@@ -16,7 +17,7 @@ pub struct Day {
 impl Day {
     pub fn new<H>(number: u8, title: &'static str, handler: H) -> Self
     where
-        H: LineStreamHandler + 'static
+        H: LineStreamHandler + 'static,
     {
         Self {
             number,

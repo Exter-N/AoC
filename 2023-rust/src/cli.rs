@@ -15,4 +15,5 @@ pub enum Commands {
         #[arg(short, long)]
         verbose: bool,
     },
+    Day02,
 }

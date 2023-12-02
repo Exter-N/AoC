@@ -29,7 +29,13 @@ impl Digit {
     fn to_opt(self, allow_spelled_out: bool) -> Option<u8> {
         match self {
             Self::Numeric(n) => Some(n),
-            Self::SpelledOut(n) => if allow_spelled_out { Some(n) } else { None },
+            Self::SpelledOut(n) => {
+                if allow_spelled_out {
+                    Some(n)
+                } else {
+                    None
+                }
+            }
             Self::None => None,
         }
     }

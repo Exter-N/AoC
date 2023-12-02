@@ -1,6 +1,6 @@
-use std::error::Error;
-use crate::days::{SILVER_ANSI, GOLD_ANSI};
 use super::{Day, LineStreamHandler};
+use crate::days::{GOLD_ANSI, SILVER_ANSI};
+use std::error::Error;
 
 mod digit_matcher;
 
@@ -42,7 +42,15 @@ impl LineStreamHandler for Day1 {
     }
 
     fn finish(self: Box<Self>) -> Result<(), Box<dyn std::error::Error>> {
-        println!("[{}] Sum of calibration values: {}", if self.matcher.allow_spelled_out { GOLD_ANSI } else { SILVER_ANSI }, self.calibration_sum);
+        println!(
+            "[{}] Sum of calibration values: {}",
+            if self.matcher.allow_spelled_out {
+                GOLD_ANSI
+            } else {
+                SILVER_ANSI
+            },
+            self.calibration_sum
+        );
         Ok(())
     }
 }
