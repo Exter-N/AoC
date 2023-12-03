@@ -16,4 +16,5 @@ pub enum Commands {
         verbose: bool,
     },
     Day02,
+    Day03,
 }
