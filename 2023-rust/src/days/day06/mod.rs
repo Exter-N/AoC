@@ -56,7 +56,7 @@ impl LineStreamHandler for Day6 {
             for (leading_zeros, num) in value {
                 let magnitude = (num as f64).log10().floor() as u32 + 1 + (leading_zeros as u32);
                 concat = (concat * 10u64.pow(magnitude)) + num;
-            };
+            }
             value = vec![(0, concat)];
         }
         match field {
