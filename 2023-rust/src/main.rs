@@ -6,6 +6,7 @@ use std::{error::Error, io::BufRead};
 mod cli;
 mod days;
 mod line_stream;
+mod math;
 
 use cli::{Cli, Commands};
 use days::Day;
@@ -21,6 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Commands::Day05 { gold } => days::day05::new(gold),
         Commands::Day06 { gold } => days::day06::new(gold),
         Commands::Day07 { gold } => days::day07::new(gold),
+        Commands::Day08 { gold } => days::day08::new(gold),
     }?;
 
     println!("--- Day {}: {} ---", day.number, day.title);

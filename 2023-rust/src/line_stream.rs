@@ -1,8 +1,11 @@
+use std::array::TryFromSliceError;
 use std::error::Error;
 
-use nom::combinator::eof;
+use nom::bytes::complete::take;
+use nom::combinator::{eof, map_res};
+use nom::error::{FromExternalError, ParseError};
 use nom::sequence::terminated;
-use nom::{Finish, Parser};
+use nom::{Finish, IResult, Parser};
 
 pub fn parse_full_string<'a, O, F>(s: &'a str, f: F) -> Result<O, nom::error::Error<usize>>
 where
@@ -15,6 +18,13 @@ where
             error.code,
         )),
     }
+}
+
+pub fn take_fixed<'a, const N: usize, E>() -> impl FnMut(&'a str) -> IResult<&'a str, [u8; N], E>
+where
+    E: ParseError<&'a str> + FromExternalError<&'a str, TryFromSliceError>,
+{
+    map_res(take(N), |code: &str| <[u8; N]>::try_from(code.as_bytes()))
 }
 
 pub trait LineStreamHandler {

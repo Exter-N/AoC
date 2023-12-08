@@ -77,36 +77,126 @@ enum HandType {
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 enum ClassifiedHand {
-    FiveOfAKind { five: Card },
-    FourOfAKind { four: Card, lone: Card },
-    FullHouse { three: Card, pair: Card },
-    ThreeOfAKind { three: Card, lone0: Card, lone1: Card },
-    TwoPair { pair0: Card, pair1: Card, lone: Card },
-    OnePair { pair: Card, lone0: Card, lone1: Card, lone2: Card },
-    HighCard { lone0: Card, lone1: Card, lone2: Card, lone3: Card, lone4: Card },
+    FiveOfAKind {
+        five: Card,
+    },
+    FourOfAKind {
+        four: Card,
+        lone: Card,
+    },
+    FullHouse {
+        three: Card,
+        pair: Card,
+    },
+    ThreeOfAKind {
+        three: Card,
+        lone0: Card,
+        lone1: Card,
+    },
+    TwoPair {
+        pair0: Card,
+        pair1: Card,
+        lone: Card,
+    },
+    OnePair {
+        pair: Card,
+        lone0: Card,
+        lone1: Card,
+        lone2: Card,
+    },
+    HighCard {
+        lone0: Card,
+        lone1: Card,
+        lone2: Card,
+        lone3: Card,
+        lone4: Card,
+    },
 }
 
 impl ClassifiedHand {
     fn hand_type(self) -> HandType {
         match self {
             Self::FiveOfAKind { five: _ } => HandType::FiveOfAKind,
-            Self::FourOfAKind { four: Card::Joker, lone: _ } => HandType::FiveOfAKind,
-            Self::FourOfAKind { four: _, lone: Card::Joker } => HandType::FiveOfAKind,
+            Self::FourOfAKind {
+                four: Card::Joker,
+                lone: _,
+            } => HandType::FiveOfAKind,
+            Self::FourOfAKind {
+                four: _,
+                lone: Card::Joker,
+            } => HandType::FiveOfAKind,
             Self::FourOfAKind { four: _, lone: _ } => HandType::FourOfAKind,
-            Self::FullHouse { three: Card::Joker, pair: _ } => HandType::FiveOfAKind,
-            Self::FullHouse { three: _, pair: Card::Joker } => HandType::FiveOfAKind,
+            Self::FullHouse {
+                three: Card::Joker,
+                pair: _,
+            } => HandType::FiveOfAKind,
+            Self::FullHouse {
+                three: _,
+                pair: Card::Joker,
+            } => HandType::FiveOfAKind,
             Self::FullHouse { three: _, pair: _ } => HandType::FullHouse,
-            Self::ThreeOfAKind { three: Card::Joker, lone0: _, lone1: _ } => HandType::FourOfAKind,
-            Self::ThreeOfAKind { three: _, lone0: _, lone1: Card::Joker } => HandType::FourOfAKind,
-            Self::ThreeOfAKind { three: _, lone0: _, lone1: _ } => HandType::ThreeOfAKind,
-            Self::TwoPair { pair0: _, pair1: Card::Joker, lone: _ } => HandType::FourOfAKind,
-            Self::TwoPair { pair0: _, pair1: _, lone: Card::Joker } => HandType::FullHouse,
-            Self::TwoPair { pair0: _, pair1: _, lone: _ } => HandType::TwoPair,
-            Self::OnePair { pair: Card::Joker, lone0: _, lone1: _, lone2: _ } => HandType::ThreeOfAKind,
-            Self::OnePair { pair: _, lone0: _, lone1: _, lone2: Card::Joker } => HandType::ThreeOfAKind,
-            Self::OnePair { pair: _, lone0: _, lone1: _, lone2: _ } => HandType::OnePair,
-            Self::HighCard { lone0: _, lone1: _, lone2: _, lone3: _, lone4: Card::Joker } => HandType::OnePair,
-            Self::HighCard { lone0: _, lone1: _, lone2: _, lone3: _, lone4: _ } => HandType::HighCard,
+            Self::ThreeOfAKind {
+                three: Card::Joker,
+                lone0: _,
+                lone1: _,
+            } => HandType::FourOfAKind,
+            Self::ThreeOfAKind {
+                three: _,
+                lone0: _,
+                lone1: Card::Joker,
+            } => HandType::FourOfAKind,
+            Self::ThreeOfAKind {
+                three: _,
+                lone0: _,
+                lone1: _,
+            } => HandType::ThreeOfAKind,
+            Self::TwoPair {
+                pair0: _,
+                pair1: Card::Joker,
+                lone: _,
+            } => HandType::FourOfAKind,
+            Self::TwoPair {
+                pair0: _,
+                pair1: _,
+                lone: Card::Joker,
+            } => HandType::FullHouse,
+            Self::TwoPair {
+                pair0: _,
+                pair1: _,
+                lone: _,
+            } => HandType::TwoPair,
+            Self::OnePair {
+                pair: Card::Joker,
+                lone0: _,
+                lone1: _,
+                lone2: _,
+            } => HandType::ThreeOfAKind,
+            Self::OnePair {
+                pair: _,
+                lone0: _,
+                lone1: _,
+                lone2: Card::Joker,
+            } => HandType::ThreeOfAKind,
+            Self::OnePair {
+                pair: _,
+                lone0: _,
+                lone1: _,
+                lone2: _,
+            } => HandType::OnePair,
+            Self::HighCard {
+                lone0: _,
+                lone1: _,
+                lone2: _,
+                lone3: _,
+                lone4: Card::Joker,
+            } => HandType::OnePair,
+            Self::HighCard {
+                lone0: _,
+                lone1: _,
+                lone2: _,
+                lone3: _,
+                lone4: _,
+            } => HandType::HighCard,
         }
     }
 }
@@ -130,21 +220,83 @@ impl Hand {
             hand[3] == hand[4],
         ) {
             (true, true, true, true) => ClassifiedHand::FiveOfAKind { five: hand[0] },
-            (true, true, true, false) => ClassifiedHand::FourOfAKind { four: hand[0], lone: hand[4] },
-            (true, true, false, true) => ClassifiedHand::FullHouse { three: hand[0], pair: hand[3] },
-            (true, true, false, false) => ClassifiedHand::ThreeOfAKind { three: hand[0], lone0: hand[3], lone1: hand[4] },
-            (true, false, true, true) => ClassifiedHand::FullHouse { three: hand[2], pair: hand[0] },
-            (true, false, true, false) => ClassifiedHand::TwoPair { pair0: hand[0], pair1: hand[2], lone: hand[4] },
-            (true, false, false, true) => ClassifiedHand::TwoPair { pair0: hand[0], pair1: hand[3], lone: hand[2] },
-            (true, false, false, false) => ClassifiedHand::OnePair { pair: hand[0], lone0: hand[2], lone1: hand[3], lone2: hand[4] },
-            (false, true, true, true) => ClassifiedHand::FourOfAKind { four: hand[1], lone: hand[0] },
-            (false, true, true, false) => ClassifiedHand::ThreeOfAKind { three: hand[1], lone0: hand[0], lone1: hand[4] },
-            (false, true, false, true) => ClassifiedHand::TwoPair { pair0: hand[1], pair1: hand[3], lone: hand[0] },
-            (false, true, false, false) => ClassifiedHand::OnePair { pair: hand[1], lone0: hand[0], lone1: hand[3], lone2: hand[4] },
-            (false, false, true, true) => ClassifiedHand::ThreeOfAKind { three: hand[2], lone0: hand[0], lone1: hand[1] },
-            (false, false, true, false) => ClassifiedHand::OnePair { pair: hand[2], lone0: hand[0], lone1: hand[1], lone2: hand[4] },
-            (false, false, false, true) => ClassifiedHand::OnePair { pair: hand[3], lone0: hand[0], lone1: hand[1], lone2: hand[2] },
-            (false, false, false, false) => ClassifiedHand::HighCard { lone0: hand[0], lone1: hand[1], lone2: hand[2], lone3: hand[3], lone4: hand[4] },
+            (true, true, true, false) => ClassifiedHand::FourOfAKind {
+                four: hand[0],
+                lone: hand[4],
+            },
+            (true, true, false, true) => ClassifiedHand::FullHouse {
+                three: hand[0],
+                pair: hand[3],
+            },
+            (true, true, false, false) => ClassifiedHand::ThreeOfAKind {
+                three: hand[0],
+                lone0: hand[3],
+                lone1: hand[4],
+            },
+            (true, false, true, true) => ClassifiedHand::FullHouse {
+                three: hand[2],
+                pair: hand[0],
+            },
+            (true, false, true, false) => ClassifiedHand::TwoPair {
+                pair0: hand[0],
+                pair1: hand[2],
+                lone: hand[4],
+            },
+            (true, false, false, true) => ClassifiedHand::TwoPair {
+                pair0: hand[0],
+                pair1: hand[3],
+                lone: hand[2],
+            },
+            (true, false, false, false) => ClassifiedHand::OnePair {
+                pair: hand[0],
+                lone0: hand[2],
+                lone1: hand[3],
+                lone2: hand[4],
+            },
+            (false, true, true, true) => ClassifiedHand::FourOfAKind {
+                four: hand[1],
+                lone: hand[0],
+            },
+            (false, true, true, false) => ClassifiedHand::ThreeOfAKind {
+                three: hand[1],
+                lone0: hand[0],
+                lone1: hand[4],
+            },
+            (false, true, false, true) => ClassifiedHand::TwoPair {
+                pair0: hand[1],
+                pair1: hand[3],
+                lone: hand[0],
+            },
+            (false, true, false, false) => ClassifiedHand::OnePair {
+                pair: hand[1],
+                lone0: hand[0],
+                lone1: hand[3],
+                lone2: hand[4],
+            },
+            (false, false, true, true) => ClassifiedHand::ThreeOfAKind {
+                three: hand[2],
+                lone0: hand[0],
+                lone1: hand[1],
+            },
+            (false, false, true, false) => ClassifiedHand::OnePair {
+                pair: hand[2],
+                lone0: hand[0],
+                lone1: hand[1],
+                lone2: hand[4],
+            },
+            (false, false, false, true) => ClassifiedHand::OnePair {
+                pair: hand[3],
+                lone0: hand[0],
+                lone1: hand[1],
+                lone2: hand[2],
+            },
+            (false, false, false, false) => ClassifiedHand::HighCard {
+                lone0: hand[0],
+                lone1: hand[1],
+                lone2: hand[2],
+                lone3: hand[3],
+                lone4: hand[4],
+            },
         }
     }
 }
@@ -157,7 +309,11 @@ impl PartialOrd for Hand {
 
 impl Ord for Hand {
     fn cmp(&self, other: &Self) -> Ordering {
-        match self.classify().hand_type().cmp(&other.classify().hand_type()) {
+        match self
+            .classify()
+            .hand_type()
+            .cmp(&other.classify().hand_type())
+        {
             Ordering::Equal => {}
             ord => return ord,
         }
