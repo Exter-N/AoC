@@ -10,6 +10,7 @@ pub mod day05;
 pub mod day06;
 pub mod day07;
 pub mod day08;
+pub mod day09;
 
 pub const GOLD_ANSI: &str = "\x1B[38;2;255;215;0mG\x1B[m";
 pub const SILVER_ANSI: &str = "\x1B[38;2;192;192;192mS\x1B[m";
