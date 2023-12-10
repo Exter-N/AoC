@@ -51,9 +51,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc-common-rs"
+version = "0.1.0"
+dependencies = [
+ "itertools",
+ "nom",
+ "num-traits",
+]
+
+[[package]]
 name = "aoc23-rs"
 version = "0.1.0"
 dependencies = [
+ "aoc-common-rs",
  "clap",
  "either",
  "itertools",

@@ -6,7 +6,10 @@ use nom::character::complete::{char, u32};
 use nom::combinator::{map, rest};
 use nom::sequence::{preceded, separated_pair};
 
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+};
 
 mod fs;
 mod state;
@@ -53,7 +56,7 @@ impl<'a> SessionLine<'a> {
 }
 
 impl LineStreamHandler for Day7 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let session_line = parse_full_string(
             line,
             alt((
@@ -83,10 +86,10 @@ impl LineStreamHandler for Day7 {
 
         session_line.update_state(&mut self.state)?;
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         println!(
             "[{}] Small dirs total size: {}",
             SILVER_ANSI,
@@ -105,8 +108,6 @@ impl LineStreamHandler for Day7 {
     }
 }
 
-pub fn new(
-    verbose: bool,
-) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((7, "No Space Left On Device", Box::new(Day7::new(verbose))))
+pub fn new(verbose: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(7, "No Space Left On Device", Day7::new(verbose)))
 }

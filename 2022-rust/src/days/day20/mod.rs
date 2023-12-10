@@ -3,7 +3,10 @@ use std::error::Error;
 
 use nom::character::complete::i64;
 
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+};
 
 #[derive(Debug, Default)]
 struct Day20 {
@@ -70,7 +73,7 @@ impl Day20 {
 }
 
 impl LineStreamHandler for Day20 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let num = parse_full_string(line, i64)?;
         let pos = self.nums.len();
         self.nums.push(num * self.key);
@@ -79,10 +82,10 @@ impl LineStreamHandler for Day20 {
             self.prev.insert(pos, pos - 1);
         }
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         if !self.nums.is_empty() {
             let last = self.nums.len() - 1;
             self.next.insert(last, 0);
@@ -117,13 +120,13 @@ impl LineStreamHandler for Day20 {
     }
 }
 
-pub fn new(gold: bool) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((
+pub fn new(gold: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(
         20,
         "Grove Positioning System",
-        Box::new(Day20::new(
+        Day20::new(
             if gold { 811_589_153 } else { 1 },
             if gold { 10 } else { 1 },
-        )),
+        ),
     ))
 }

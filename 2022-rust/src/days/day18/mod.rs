@@ -5,9 +5,11 @@ use nom::character::complete::{char, i16};
 use nom::combinator::map;
 use nom::sequence::tuple;
 
-use crate::point::{Direction3, Point3};
-
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+    point::{Direction3, Point3},
+};
 
 #[derive(Default)]
 struct Day18 {
@@ -73,7 +75,7 @@ impl Day18 {
 }
 
 impl LineStreamHandler for Day18 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let pt = parse_full_string(
             line,
             map(
@@ -93,10 +95,10 @@ impl LineStreamHandler for Day18 {
             self.max = Some(pt);
         }
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         println!(
             "[{}] Total surface area: {}",
             SILVER_ANSI,
@@ -112,6 +114,6 @@ impl LineStreamHandler for Day18 {
     }
 }
 
-pub fn new() -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((18, "Boiling Boulders", Box::new(Day18::new())))
+pub fn new() -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(18, "Boiling Boulders", Day18::new()))
 }

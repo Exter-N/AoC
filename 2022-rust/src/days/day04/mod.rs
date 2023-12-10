@@ -3,7 +3,10 @@ use std::error::Error;
 use nom::character::complete::{char, u32};
 use nom::sequence::separated_pair;
 
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+};
 
 #[derive(Default)]
 struct Day4 {
@@ -18,7 +21,7 @@ impl Day4 {
 }
 
 impl LineStreamHandler for Day4 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let ((start1, end1), (start2, end2)) = parse_full_string(
             line,
             separated_pair(
@@ -36,10 +39,10 @@ impl LineStreamHandler for Day4 {
             self.overlap += 1;
         }
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         println!("[{}] Contain: {}", SILVER_ANSI, self.contain);
         println!("[{}] Overlap: {}", GOLD_ANSI, self.overlap);
 
@@ -47,6 +50,6 @@ impl LineStreamHandler for Day4 {
     }
 }
 
-pub fn new() -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((4, "Camp Cleanup", Box::new(Day4::new())))
+pub fn new() -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(4, "Camp Cleanup", Day4::new()))
 }

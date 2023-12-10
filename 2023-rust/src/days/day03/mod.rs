@@ -1,11 +1,9 @@
 use std::{error::Error, mem::replace};
 
-use crate::{
-    days::{GOLD_ANSI, SILVER_ANSI},
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
     line_stream::LineStreamHandler,
 };
-
-use super::Day;
 
 mod schematic;
 

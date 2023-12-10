@@ -5,12 +5,10 @@ use nom::{
     multi::separated_list1,
 };
 
-use crate::{
-    days::{GOLD_ANSI, SILVER_ANSI},
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
     line_stream::{parse_full_string, LineStreamHandler},
 };
-
-use super::Day;
 
 fn extrapolate(values: Vec<i32>) -> Option<i32> {
     if values.len() < 2 {

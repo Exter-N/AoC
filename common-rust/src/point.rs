@@ -33,10 +33,10 @@ impl<T> Point2<T>
 where
     T: Copy,
 {
-    pub fn with_x(self, x: T) -> Self {
+    pub const fn with_x(self, x: T) -> Self {
         Self(x, self.1)
     }
-    pub fn with_y(self, y: T) -> Self {
+    pub const fn with_y(self, y: T) -> Self {
         Self(self.0, y)
     }
 }
@@ -99,6 +99,30 @@ where
     }
 }
 
+impl<T> Point2<T>
+where
+    T: Add<T, Output = T> + Copy + One,
+{
+    pub fn next_right(self) -> Self {
+        self.with_x(self.0 + one())
+    }
+    pub fn next_down(self) -> Self {
+        self.with_y(self.1 + one())
+    }
+}
+
+impl<T> Point2<T>
+where
+    T: Sub<T, Output = T> + Copy + One,
+{
+    pub fn next_left(self) -> Self {
+        self.with_x(self.0 - one())
+    }
+    pub fn next_up(self) -> Self {
+        self.with_y(self.1 - one())
+    }
+}
+
 impl<T, U> Add<Point2<U>> for Point2<T>
 where
     T: Add<U>,
@@ -148,7 +172,7 @@ impl<T> Point3<T>
 where
     T: Add<T, Output = T> + Ord + Sub<T, Output = T>,
 {
-    pub fn _manhattan_distance(self, other: Self) -> T {
+    pub fn manhattan_distance(self, other: Self) -> T {
         abs_diff(self.0, other.0) + abs_diff(self.1, other.1) + abs_diff(self.2, other.2)
     }
 }
@@ -157,7 +181,7 @@ impl<T> Point3<T>
 where
     T: Ord + Sub<T, Output = T>,
 {
-    pub fn _chebyshev_distance(self, other: Self) -> T {
+    pub fn chebyshev_distance(self, other: Self) -> T {
         max(
             max(abs_diff(self.0, other.0), abs_diff(self.1, other.1)),
             abs_diff(self.2, other.2),
@@ -169,13 +193,13 @@ impl<T> Point3<T>
 where
     T: Copy,
 {
-    pub fn with_x(self, x: T) -> Self {
+    pub const fn with_x(self, x: T) -> Self {
         Self(x, self.1, self.2)
     }
-    pub fn with_y(self, y: T) -> Self {
+    pub const fn with_y(self, y: T) -> Self {
         Self(self.0, y, self.2)
     }
-    pub fn with_z(self, z: T) -> Self {
+    pub const fn with_z(self, z: T) -> Self {
         Self(self.0, self.1, z)
     }
 }
@@ -184,7 +208,7 @@ impl<T> Point3<T>
 where
     T: Ord,
 {
-    pub fn _direction_towards(&self, towards: &Self) -> Option<Direction3> {
+    pub fn direction_towards(&self, towards: &Self) -> Option<Direction3> {
         match self.0.cmp(&towards.0) {
             Ordering::Less => {
                 if self.1 == towards.1 && self.2 == towards.2 {
@@ -261,6 +285,36 @@ where
 {
     pub fn next_towards(self, towards: Direction3) -> Self {
         self.towards(towards, one())
+    }
+}
+
+impl<T> Point3<T>
+where
+    T: Add<T, Output = T> + Copy + One,
+{
+    pub fn next_right(self) -> Self {
+        self.with_x(self.0 + one())
+    }
+    pub fn next_down(self) -> Self {
+        self.with_y(self.1 + one())
+    }
+    pub fn next_back(self) -> Self {
+        self.with_z(self.2 + one())
+    }
+}
+
+impl<T> Point3<T>
+where
+    T: Sub<T, Output = T> + Copy + One,
+{
+    pub fn next_left(self) -> Self {
+        self.with_x(self.0 - one())
+    }
+    pub fn next_up(self) -> Self {
+        self.with_y(self.1 - one())
+    }
+    pub fn next_front(self) -> Self {
+        self.with_z(self.2 - one())
     }
 }
 

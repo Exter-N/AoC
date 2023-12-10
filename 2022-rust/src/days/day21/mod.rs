@@ -7,9 +7,11 @@ use nom::combinator::map;
 use nom::error::Error as NomError;
 use nom::sequence::{separated_pair, tuple};
 
-use crate::cc::FourCC;
-
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    cc::FourCC,
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+};
 
 mod monkeys;
 
@@ -31,7 +33,7 @@ impl Day21 {
 }
 
 impl LineStreamHandler for Day21 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let four_cc = move || {
             map(
                 tuple((anychar::<&str, NomError<&str>>, anychar, anychar, anychar)),
@@ -66,10 +68,10 @@ impl LineStreamHandler for Day21 {
         )?;
         self.monkeys.insert(id, op);
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         if self.gold {
             self.monkeys.remove(&HUMAN);
             if let Some(_) = self.monkeys.resolve(ROOT_MONKEY) {
@@ -101,6 +103,6 @@ impl LineStreamHandler for Day21 {
     }
 }
 
-pub fn new(gold: bool) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((21, "Monkey Math", Box::new(Day21::new(gold))))
+pub fn new(gold: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(21, "Monkey Math", Day21::new(gold)))
 }

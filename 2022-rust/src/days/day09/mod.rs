@@ -3,11 +3,14 @@ use std::error::Error;
 use nom::character::complete::{anychar, char, u16};
 use nom::sequence::separated_pair;
 
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+    point::{Direction2, Point2},
+};
 
 mod rope;
 
-use crate::point::{Direction2, Point2};
 use rope::{pull_towards, TracedPoint};
 
 #[derive(Default)]
@@ -104,15 +107,15 @@ impl Day9 {
 }
 
 impl LineStreamHandler for Day9 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let (direction, distance) =
             parse_full_string(line, separated_pair(anychar, char(' '), u16))?;
         self.move_head(Direction2::try_from(direction)?, distance);
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         println!(
             "[{}] Points in tail trace: {}",
             if self.intermediate.is_empty() {
@@ -132,13 +135,10 @@ impl LineStreamHandler for Day9 {
     }
 }
 
-pub fn new(
-    gold: bool,
-    verbosity: u8,
-) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((
+pub fn new(gold: bool, verbosity: u8) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(
         9,
         "Rope Bridge",
-        Box::new(Day9::new(if gold { 8 } else { 0 }, verbosity)),
+        Day9::new(if gold { 8 } else { 0 }, verbosity),
     ))
 }

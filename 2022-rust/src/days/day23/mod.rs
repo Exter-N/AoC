@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use super::LineStreamHandler;
+use aoc_common_rs::{day::Day, line_stream::LineStreamHandler};
 
 #[derive(Default)]
 struct Day23 {}
@@ -12,18 +12,15 @@ impl Day23 {
 }
 
 impl LineStreamHandler for Day23 {
-    fn update(
-        &mut self,
-        _line: &str,
-    ) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
-        Ok(None)
+    fn update(&mut self, _line: &str) -> Result<(), Box<dyn Error>> {
+        todo!()
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
-        Ok(())
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
+        todo!()
     }
 }
 
-pub fn new() -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((23, "Unstable Diffusion", Box::new(Day23::new())))
+pub fn new() -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(23, "Unstable Diffusion", Day23::new()))
 }

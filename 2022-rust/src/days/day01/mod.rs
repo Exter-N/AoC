@@ -3,9 +3,11 @@ use std::error::Error;
 use nom::character::complete::u32;
 use nom::combinator::opt;
 
-use crate::ord::Top;
-
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+    ord::Top,
+};
 
 #[derive(Default)]
 struct Day1 {
@@ -31,17 +33,17 @@ impl Day1 {
 }
 
 impl LineStreamHandler for Day1 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         if let Some(calories) = parse_full_string(line, opt(u32))? {
             self.add(calories);
         } else {
             self.end_group();
         }
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         self.end_group();
 
         let [top3, top2, top1] = *self.top;
@@ -55,8 +57,6 @@ impl LineStreamHandler for Day1 {
     }
 }
 
-pub fn new(
-    verbose: bool,
-) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((1, "Calorie Counting", Box::new(Day1::new(verbose))))
+pub fn new(verbose: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(1, "Calorie Counting", Day1::new(verbose)))
 }

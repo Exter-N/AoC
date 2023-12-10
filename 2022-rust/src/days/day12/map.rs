@@ -1,7 +1,7 @@
 use std::error::Error;
 
-use crate::point::{Direction2, Point2};
-use crate::terrain::Terrain;
+use aoc_common_rs::point::{Direction2, Point2};
+use aoc_common_rs::terrain::Terrain;
 
 #[derive(Debug, Default)]
 #[repr(u8)]

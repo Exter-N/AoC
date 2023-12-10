@@ -1,5 +1,7 @@
-use super::{Day, LineStreamHandler};
-use crate::days::{GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::LineStreamHandler,
+};
 use std::error::Error;
 
 mod digit_matcher;

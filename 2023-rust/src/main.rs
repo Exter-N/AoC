@@ -5,11 +5,9 @@ use std::{error::Error, io::BufRead};
 
 mod cli;
 mod days;
-mod line_stream;
-mod math;
 
+use aoc_common_rs::day::Day;
 use cli::{Cli, Commands};
-use days::Day;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
@@ -24,6 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Commands::Day07 { gold } => days::day07::new(gold),
         Commands::Day08 { gold } => days::day08::new(gold),
         Commands::Day09 { gold } => days::day09::new(gold),
+        Commands::Day10 => days::day10::new(),
     }?;
 
     println!("--- Day {}: {} ---", day.number, day.title);

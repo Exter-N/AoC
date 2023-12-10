@@ -1,17 +1,17 @@
-use std::cell::RefCell;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::error::Error;
-use std::rc::Rc;
 
 use nom::branch::alt;
 use nom::character::complete::{char, u32};
 use nom::combinator::map;
 use nom::multi::many0;
 
-use crate::math::gcd;
-use crate::point::{Direction2, Direction3, Point2};
-
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandlerOnce},
+    math::gcd,
+    point::{Direction2, Direction3, Point2},
+};
 
 #[derive(Debug, Default)]
 struct Chunk {
@@ -55,14 +55,14 @@ struct Day22 {
 }
 
 impl Day22 {
-    fn new(fold_as_cube: bool) -> Rc<RefCell<Self>> {
-        Rc::new(RefCell::new(Self {
+    fn new(fold_as_cube: bool) -> Self {
+        Self {
             fold_as_cube,
             chunk_size: None,
             height: 0,
             chunks: HashMap::new(),
             position: (Point2(0, 0), Point2(0, 0), Direction2::Right),
-        }))
+        }
     }
     fn bind_chunks(
         &mut self,
@@ -269,17 +269,20 @@ enum Move {
     TurnClockwise,
 }
 
-struct Day22Map(Rc<RefCell<Day22>>);
+struct Day22Map(Day22);
 
-struct Day22Moves(Rc<RefCell<Day22>>);
+struct Day22Moves(Day22);
 
-impl LineStreamHandler for Day22Map {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
-        let mut state = self.0.borrow_mut();
+impl LineStreamHandlerOnce for Day22Map {
+    fn update(
+        mut self: Box<Self>,
+        line: &str,
+    ) -> Result<Box<dyn LineStreamHandlerOnce>, Box<dyn Error>> {
+        let state = &mut self.0;
         if line.is_empty() {
             state.fold();
 
-            return Ok(Some(Box::new(Day22Moves(self.0.clone()))));
+            return Ok(Box::new(Day22Moves(self.0)));
         }
         if let Some(spaces) = line.chars().position(|ch| ch != ' ') {
             let chunk_size = state.chunk_size.unwrap_or_else(|| {
@@ -309,16 +312,19 @@ impl LineStreamHandler for Day22Map {
         }
         state.height += 1;
 
-        Ok(None)
+        Ok(self)
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         unreachable!()
     }
 }
 
-impl LineStreamHandler for Day22Moves {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+impl LineStreamHandlerOnce for Day22Moves {
+    fn update(
+        mut self: Box<Self>,
+        line: &str,
+    ) -> Result<Box<dyn LineStreamHandlerOnce>, Box<dyn Error>> {
         let moves = parse_full_string(
             line,
             many0(alt((
@@ -327,16 +333,16 @@ impl LineStreamHandler for Day22Moves {
                 map(char('R'), |_| Move::TurnClockwise),
             ))),
         )?;
-        let mut state = self.0.borrow_mut();
+        let state = &mut self.0;
         for m in moves {
             state.do_move(m);
         }
 
-        Ok(None)
+        Ok(self)
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
-        let state = self.0.borrow();
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
+        let state = self.0;
         println!(
             "[{}] Final password: {}",
             if state.fold_as_cube {
@@ -351,6 +357,6 @@ impl LineStreamHandler for Day22Moves {
     }
 }
 
-pub fn new(gold: bool) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((22, "Monkey Map", Box::new(Day22Map(Day22::new(gold)))))
+pub fn new(gold: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new_once(22, "Monkey Map", Day22Map(Day22::new(gold))))
 }

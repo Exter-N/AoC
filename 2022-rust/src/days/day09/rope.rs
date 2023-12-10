@@ -1,6 +1,6 @@
 use std::{collections::HashSet, hash::Hash};
 
-use crate::point::Point2;
+use aoc_common_rs::point::Point2;
 
 fn do_pull_towards(
     point: Point2<i16>,

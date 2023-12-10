@@ -9,12 +9,10 @@ use nom::{
     sequence::{pair, preceded, separated_pair},
 };
 
-use crate::{
-    days::GOLD_ANSI,
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
     line_stream::{parse_full_string, LineStreamHandler},
 };
-
-use super::{Day, SILVER_ANSI};
 
 struct Day6 {
     gold: bool,

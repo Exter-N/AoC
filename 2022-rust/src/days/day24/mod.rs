@@ -1,9 +1,11 @@
 use std::collections::HashSet;
 use std::error::Error;
 
-use crate::point::{Direction2, Point2};
-
-use super::{LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::LineStreamHandler,
+    point::{Direction2, Point2},
+};
 
 #[derive(Debug)]
 struct Blizzard {
@@ -103,7 +105,7 @@ impl Day24 {
 }
 
 impl LineStreamHandler for Day24 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let mut is_end_line = false;
         for (ch, i) in line.chars().zip(0usize..) {
             let pos = Point2(i, self.height);
@@ -135,10 +137,10 @@ impl LineStreamHandler for Day24 {
         }
         self.height = self.height + 1;
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         if let Some(time) = self.time_forwards() {
             println!("[{}] Time to traverse: {}", SILVER_ANSI, time);
             if let Some(time2) = self.time_backwards() {
@@ -158,6 +160,6 @@ impl LineStreamHandler for Day24 {
     }
 }
 
-pub fn new() -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((24, "Blizzard Basin", Box::new(Day24::new())))
+pub fn new() -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(24, "Blizzard Basin", Day24::new()))
 }

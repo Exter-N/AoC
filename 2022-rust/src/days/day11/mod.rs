@@ -7,7 +7,10 @@ use nom::combinator::{map, opt};
 use nom::multi::separated_list0;
 use nom::sequence::{delimited, preceded};
 
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+};
 
 mod state;
 use state::{Monkey, Operation, State};
@@ -85,7 +88,7 @@ impl Line {
 }
 
 impl LineStreamHandler for Day11 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let parsed_line = parse_full_string(
             line,
             opt(alt((
@@ -130,10 +133,10 @@ impl LineStreamHandler for Day11 {
             l.update_state(self)?;
         }
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         self.state.determine_post_operation(self.gold);
         self.play_rounds(if self.gold { 10000 } else { 20 });
 
@@ -150,13 +153,10 @@ impl LineStreamHandler for Day11 {
     }
 }
 
-pub fn new(
-    gold: bool,
-    verbosity: u8,
-) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((
+pub fn new(gold: bool, verbosity: u8) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(
         11,
         "Monkey in the Middle",
-        Box::new(Day11::new(gold, verbosity)),
+        Day11::new(gold, verbosity),
     ))
 }

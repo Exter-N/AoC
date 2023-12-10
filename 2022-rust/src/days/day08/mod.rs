@@ -1,7 +1,10 @@
 use std::cmp::max;
 use std::error::Error;
 
-use super::LineStreamHandler;
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::LineStreamHandler,
+};
 
 mod map;
 
@@ -23,22 +26,26 @@ impl Day8 {
 }
 
 impl LineStreamHandler for Day8 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let mut row = self.map.new_row();
         for ch in line.chars() {
             row.push(ch.try_into()?);
         }
         self.map.push_row(row);
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         self.map.calculate_ns_visibilities();
         self.map.calculate_scenic_scores();
-        println!("[S] Visible tree count: {}", self.map.visible_count);
         println!(
-            "[G] Max scenic score:   {}",
+            "[{}] Visible tree count: {}",
+            SILVER_ANSI, self.map.visible_count
+        );
+        println!(
+            "[{}] Max scenic score:   {}",
+            GOLD_ANSI,
             max(self.map.max_visible_score, self.map.max_hidden_score)
         );
         if self.verbosity > 0 {
@@ -55,8 +62,6 @@ impl LineStreamHandler for Day8 {
     }
 }
 
-pub fn new(
-    verbosity: u8,
-) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((8, "Treetop Tree House", Box::new(Day8::new(verbosity))))
+pub fn new(verbosity: u8) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(8, "Treetop Tree House", Day8::new(verbosity)))
 }

@@ -1,28 +1,30 @@
-use std::cell::RefCell;
 use std::error::Error;
-use std::rc::Rc;
 
 use nom::bytes::complete::tag;
 use nom::character::complete::{anychar, u32};
 use nom::multi::separated_list1;
 use nom::sequence::{delimited, preceded, tuple};
 
-use crate::days::{GOLD_ANSI, SILVER_ANSI};
-
-use super::{parse_full_string, LineStreamHandler};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandlerOnce},
+};
 
 mod state;
 
 use state::ShipWithCrane;
 
-struct Day5Stacks(Rc<RefCell<ShipWithCrane>>);
+struct Day5Stacks(ShipWithCrane);
 
-struct Day5Moves(Rc<RefCell<ShipWithCrane>>);
+struct Day5Moves(ShipWithCrane);
 
-impl LineStreamHandler for Day5Stacks {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+impl LineStreamHandlerOnce for Day5Stacks {
+    fn update(
+        mut self: Box<Self>,
+        line: &str,
+    ) -> Result<Box<dyn LineStreamHandlerOnce>, Box<dyn Error>> {
         if line.is_empty() {
-            return Ok(Some(Box::new(Day5Moves(self.0.clone()))));
+            return Ok(Box::new(Day5Moves(self.0)));
         }
 
         let crates = parse_full_string(
@@ -30,18 +32,21 @@ impl LineStreamHandler for Day5Stacks {
             separated_list1(anychar, delimited(anychar, anychar, anychar)),
         )?;
 
-        self.0.borrow_mut().add_bottom_layer(crates);
+        self.0.add_bottom_layer(crates);
 
-        Ok(None)
+        Ok(self)
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         unreachable!()
     }
 }
 
-impl LineStreamHandler for Day5Moves {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+impl LineStreamHandlerOnce for Day5Moves {
+    fn update(
+        mut self: Box<Self>,
+        line: &str,
+    ) -> Result<Box<dyn LineStreamHandlerOnce>, Box<dyn Error>> {
         let (num, from, to) = parse_full_string(
             line,
             tuple((
@@ -51,14 +56,13 @@ impl LineStreamHandler for Day5Moves {
             )),
         )?;
         self.0
-            .borrow_mut()
             .move_top(num as usize, from as usize - 1, to as usize - 1)?;
 
-        Ok(None)
+        Ok(self)
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
-        let state = self.0.borrow();
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
+        let state = self.0;
         println!(
             "[{}] Stack tops: {}",
             if state.reverse_on_move {
@@ -76,13 +80,10 @@ impl LineStreamHandler for Day5Moves {
     }
 }
 
-pub fn new(
-    gold: bool,
-    verbose: bool,
-) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((
+pub fn new(gold: bool, verbose: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new_once(
         5,
         "Supply Stacks",
-        Box::new(Day5Stacks(ShipWithCrane::new(!gold, verbose))),
+        Day5Stacks(ShipWithCrane::new(!gold, verbose)),
     ))
 }

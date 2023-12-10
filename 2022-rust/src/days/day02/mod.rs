@@ -3,9 +3,10 @@ use std::error::Error;
 use nom::character::complete::{anychar, char};
 use nom::sequence::separated_pair;
 
-use crate::days::{GOLD_ANSI, SILVER_ANSI};
-
-use super::{parse_full_string, LineStreamHandler};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+};
 
 mod rps;
 
@@ -27,7 +28,7 @@ impl Day2 {
 }
 
 impl LineStreamHandler for Day2 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let (theirs_c, second_c) =
             parse_full_string(line, separated_pair(anychar, char(' '), anychar))?;
         let theirs = Gesture::try_from(theirs_c)?;
@@ -42,10 +43,10 @@ impl LineStreamHandler for Day2 {
         }
         self.total_score += (1 + ours as u32) + (3 * outcome as u32);
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         println!(
             "[{}] Total score: {}",
             if self.second_char_is_outcome {
@@ -60,6 +61,6 @@ impl LineStreamHandler for Day2 {
     }
 }
 
-pub fn new(gold: bool) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((2, "Rock Paper Scissors", Box::new(Day2::new(gold))))
+pub fn new(gold: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(2, "Rock Paper Scissors", Day2::new(gold)))
 }

@@ -2,9 +2,11 @@ use std::error::Error;
 
 use nom::combinator::opt;
 
-use crate::ord::binary_search;
-
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+    ord::binary_search,
+};
 
 mod packet;
 
@@ -23,7 +25,7 @@ impl Day13 {
 }
 
 impl LineStreamHandler for Day13 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         if let Some(packet) = parse_full_string(line, opt(packet))? {
             self.packets.push(packet);
             let packets_so_far = self.packets.len();
@@ -34,10 +36,10 @@ impl LineStreamHandler for Day13 {
             }
         }
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         self.packets.sort_unstable();
 
         println!(
@@ -58,6 +60,6 @@ impl LineStreamHandler for Day13 {
     }
 }
 
-pub fn new() -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((13, "Distress Signal", Box::new(Day13::new())))
+pub fn new() -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(13, "Distress Signal", Day13::new()))
 }

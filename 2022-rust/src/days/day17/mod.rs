@@ -6,9 +6,11 @@ use std::ops::{Deref, DerefMut};
 
 use lazy_static::lazy_static;
 
-use crate::point::Direction2;
-
-use super::{LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::LineStreamHandler,
+    point::Direction2,
+};
 
 lazy_static! {
     static ref ROCKS: Vec<Vec<u8>> = vec![
@@ -226,7 +228,7 @@ impl Day17 {
 }
 
 impl LineStreamHandler for Day17 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let mut tower = Tower::new(max(10000, line.len()));
         let mut snapshots: HashSet<TowerState> = HashSet::new();
         'cycle: for _ in 0usize.. {
@@ -266,24 +268,18 @@ impl LineStreamHandler for Day17 {
             tower.dump_tower();
         }
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 }
 
-pub fn new(
-    gold: bool,
-    verbose: bool,
-) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((
+pub fn new(gold: bool, verbose: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(
         17,
         "Pyroclastic Flow",
-        Box::new(Day17::new(
-            if gold { 1_000_000_000_000 } else { 2022 },
-            verbose,
-        )),
+        Day17::new(if gold { 1_000_000_000_000 } else { 2022 }, verbose),
     ))
 }

@@ -3,8 +3,8 @@ use std::ops::{Add, Deref, Div, RangeInclusive, Sub};
 
 use num_traits::{one, zero, One, PrimInt, Zero};
 
-use crate::math::is_integer;
-use crate::ord::binary_search_by;
+use aoc_common_rs::math::is_integer;
+use aoc_common_rs::ord::binary_search_by;
 
 #[derive(Clone, Debug)]
 #[repr(transparent)]

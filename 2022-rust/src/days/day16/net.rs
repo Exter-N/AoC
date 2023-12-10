@@ -3,8 +3,8 @@ use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::ops::{Deref, DerefMut};
 
-use crate::cc::TwoCC;
-use crate::ord::Top;
+use aoc_common_rs::cc::TwoCC;
+use aoc_common_rs::ord::Top;
 
 use super::valve::{Valve, STARTING_VALVE_ID, VIRTUAL_STARTER_ID};
 

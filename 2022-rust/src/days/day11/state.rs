@@ -1,5 +1,5 @@
-use crate::math::lcm;
-use crate::ord::Top;
+use aoc_common_rs::math::lcm;
+use aoc_common_rs::ord::Top;
 
 #[derive(Clone, Copy, Default)]
 pub enum Operation {

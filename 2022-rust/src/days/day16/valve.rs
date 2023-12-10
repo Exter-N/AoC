@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
-use crate::cc::TwoCC;
-use crate::ord::ProximityMap;
+use aoc_common_rs::cc::TwoCC;
+use aoc_common_rs::ord::ProximityMap;
 
 #[derive(Clone, Debug, Default)]
 pub struct Valve {

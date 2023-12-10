@@ -1,8 +1,9 @@
 use std::error::Error;
 
-use crate::days::{GOLD_ANSI, SILVER_ANSI};
-
-use super::LineStreamHandler;
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::LineStreamHandler,
+};
 
 const SILVER_MARKER_LENGTH: usize = 4;
 const GOLD_MARKER_LENGTH: usize = 14;
@@ -36,7 +37,7 @@ fn has_all_distinct_chars(s: &str) -> Result<bool, Box<dyn Error>> {
 }
 
 impl LineStreamHandler for Day6 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let line_len = line.len();
         let prefix = if self.marker_length == GOLD_MARKER_LENGTH {
             GOLD_ANSI
@@ -51,27 +52,27 @@ impl LineStreamHandler for Day6 {
         for i in self.marker_length..=line_len {
             if has_all_distinct_chars(&line[(i - self.marker_length)..i])? {
                 println!("[{}] Start of {}: {}", prefix, description, i);
-                return Ok(None);
+                return Ok(());
             }
         }
         println!("[{}] No start of {}", prefix, description);
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 }
 
-pub fn new(gold: bool) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((
+pub fn new(gold: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(
         6,
         "Tuning Trouble",
-        Box::new(Day6::new(if gold {
+        Day6::new(if gold {
             GOLD_MARKER_LENGTH
         } else {
             SILVER_MARKER_LENGTH
-        })),
+        }),
     ))
 }

@@ -1,8 +1,8 @@
 use std::error::Error;
 
-use crate::math::scale_u8;
-use crate::point::Point2;
-use crate::terrain::Terrain;
+use aoc_common_rs::math::scale_u8;
+use aoc_common_rs::point::Point2;
+use aoc_common_rs::terrain::Terrain;
 
 const MAX_HEIGHT: u8 = 10;
 

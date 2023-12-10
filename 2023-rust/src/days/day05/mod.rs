@@ -9,12 +9,10 @@ use nom::{
     sequence::{preceded, separated_pair, terminated},
 };
 
-use crate::{
-    days::{GOLD_ANSI, SILVER_ANSI},
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
     line_stream::{parse_full_string, LineStreamHandler},
 };
-
-use super::Day;
 
 #[derive(Clone, Debug)]
 struct Id {

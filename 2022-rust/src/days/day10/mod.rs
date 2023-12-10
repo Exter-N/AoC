@@ -6,7 +6,10 @@ use nom::character::complete::i32;
 use nom::combinator::map;
 use nom::sequence::preceded;
 
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+};
 
 #[derive(Default)]
 struct Day10 {
@@ -62,7 +65,7 @@ enum Instruction {
 }
 
 impl LineStreamHandler for Day10 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let instruction = parse_full_string(
             line,
             alt((
@@ -72,10 +75,10 @@ impl LineStreamHandler for Day10 {
         )?;
         self.execute(instruction);
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         println!("[{}] Sum of strengths: {}", SILVER_ANSI, self.sum);
         println!("[{}] Screen contents:", GOLD_ANSI);
         for row in self.screen {
@@ -89,8 +92,6 @@ impl LineStreamHandler for Day10 {
     }
 }
 
-pub fn new(
-    verbose: bool,
-) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((10, "Cathode-Ray Tube", Box::new(Day10::new(verbose))))
+pub fn new(verbose: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(10, "Cathode-Ray Tube", Day10::new(verbose)))
 }

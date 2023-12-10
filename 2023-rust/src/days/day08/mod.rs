@@ -9,13 +9,12 @@ use nom::{
     sequence::{separated_pair, terminated},
 };
 
-use crate::{
-    days::SILVER_ANSI,
+use aoc_common_rs::{
+    cc::ThreeCC,
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
     line_stream::{parse_full_string, take_fixed, LineStreamHandler},
     math::lcm,
 };
-
-use super::Day;
 
 #[derive(Clone, Copy)]
 enum Direction {
@@ -23,10 +22,10 @@ enum Direction {
     Right,
 }
 
-struct Node([u8; 3], [u8; 3]);
+struct Node(ThreeCC, ThreeCC);
 
 impl Node {
-    fn get(&self, direction: Direction) -> [u8; 3] {
+    fn get(&self, direction: Direction) -> ThreeCC {
         match direction {
             Direction::Left => self.0,
             Direction::Right => self.1,
@@ -34,18 +33,18 @@ impl Node {
     }
 }
 
-const START_POSITION: [u8; 3] = ['A' as u8; 3];
-const END_POSITION: [u8; 3] = ['Z' as u8; 3];
+const START_POSITION: ThreeCC = ThreeCC::new('A', 'A', 'A');
+const END_POSITION: ThreeCC = ThreeCC::new('Z', 'Z', 'Z');
 
 enum Line {
     Directions(Vec<Direction>),
-    Node([u8; 3], Node),
+    Node(ThreeCC, Node),
 }
 
 struct Day8 {
     gold: bool,
     directions: Vec<Direction>,
-    network: HashMap<[u8; 3], Node>,
+    network: HashMap<ThreeCC, Node>,
 }
 
 impl Day8 {
@@ -58,8 +57,8 @@ impl Day8 {
     }
     fn moves(
         &self,
-        from: [u8; 3],
-        to_predicate: impl Fn([u8; 3]) -> bool,
+        from: ThreeCC,
+        to_predicate: impl Fn(ThreeCC) -> bool,
     ) -> Result<usize, Box<dyn Error>> {
         let mut position = from;
         let mut moves = 0usize;
@@ -89,10 +88,14 @@ impl LineStreamHandler for Day8 {
             alt((
                 map(
                     separated_pair(
-                        take_fixed::<3, _>(),
+                        map(take_fixed::<3, _>(), ThreeCC::from),
                         tag(" = ("),
                         terminated(
-                            separated_pair(take_fixed::<3, _>(), tag(", "), take_fixed::<3, _>()),
+                            separated_pair(
+                                map(take_fixed::<3, _>(), ThreeCC::from),
+                                tag(", "),
+                                map(take_fixed::<3, _>(), ThreeCC::from),
+                            ),
                             char(')'),
                         ),
                     ),
@@ -123,17 +126,21 @@ impl LineStreamHandler for Day8 {
         if self.gold {
             moves = 1;
             for start in self.network.keys() {
-                if start[2] == 'A' as u8 {
+                if start.third() == 'A' {
                     moves = lcm(
                         moves,
-                        self.moves(*start, |position| position[2] == 'Z' as u8)?,
+                        self.moves(*start, |position| position.third() == 'Z')?,
                     );
                 }
             }
         } else {
             moves = self.moves(START_POSITION, |position| position == END_POSITION)?;
         }
-        println!("[{}] Number of moves: {}", SILVER_ANSI, moves);
+        println!(
+            "[{}] Number of moves: {}",
+            if self.gold { GOLD_ANSI } else { SILVER_ANSI },
+            moves
+        );
         Ok(())
     }
 }

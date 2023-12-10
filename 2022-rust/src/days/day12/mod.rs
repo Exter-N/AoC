@@ -1,6 +1,9 @@
 use std::error::Error;
 
-use super::{LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::LineStreamHandler,
+};
 
 mod map;
 
@@ -24,7 +27,7 @@ impl Day12 {
 }
 
 impl LineStreamHandler for Day12 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let mut row = self.map.new_row();
         for (ch, j) in line.chars().zip(0usize..) {
             let cell = TerrainCell::try_from(ch)?;
@@ -33,10 +36,10 @@ impl LineStreamHandler for Day12 {
         }
         self.map.push_row(row);
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         self.map.calculate_distances(self.from_any);
         if let Some(distance) = self.map.climbing_distance() {
             println!(
@@ -67,13 +70,10 @@ impl LineStreamHandler for Day12 {
     }
 }
 
-pub fn new(
-    gold: bool,
-    verbose: bool,
-) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((
+pub fn new(gold: bool, verbose: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(
         12,
         "Hill Climbing Algorithm",
-        Box::new(Day12::new(gold, verbose)),
+        Day12::new(gold, verbose),
     ))
 }

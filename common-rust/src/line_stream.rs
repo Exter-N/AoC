@@ -31,3 +31,35 @@ pub trait LineStreamHandler {
     fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>>;
     fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>>;
 }
+
+pub trait LineStreamHandlerOnce {
+    fn update(
+        self: Box<Self>,
+        line: &str,
+    ) -> Result<Box<dyn LineStreamHandlerOnce>, Box<dyn Error>>;
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>>;
+}
+
+struct WrappedLineStreamHandlerOnce(Option<Box<dyn LineStreamHandlerOnce>>);
+
+impl LineStreamHandler for WrappedLineStreamHandlerOnce {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
+        if let Some(handler) = std::mem::take(&mut self.0) {
+            self.0 = Some(handler.update(line)?);
+            Ok(())
+        } else {
+            Err("cannot continue using a wrapped LineStreamHandlerOnce that returned an error".into())
+        }
+    }
+
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
+        self.0.unwrap().finish()
+    }
+}
+
+pub fn wrap_once<H>(handler: H) -> impl LineStreamHandler
+where
+    H: LineStreamHandlerOnce + 'static,
+{
+    WrappedLineStreamHandlerOnce(Some(Box::new(handler)))
+}

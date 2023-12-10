@@ -1,7 +1,5 @@
-use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::error::Error;
-use std::rc::Rc;
 
 #[derive(Default)]
 pub struct ShipWithCrane {
@@ -11,12 +9,12 @@ pub struct ShipWithCrane {
 }
 
 impl ShipWithCrane {
-    pub fn new(reverse_on_move: bool, verbose: bool) -> Rc<RefCell<Self>> {
-        Rc::new(RefCell::new(Self {
+    pub fn new(reverse_on_move: bool, verbose: bool) -> Self {
+        Self {
             reverse_on_move,
             verbose,
             ..Default::default()
-        }))
+        }
     }
 
     pub fn add_bottom_layer(&mut self, crates: Vec<char>) {

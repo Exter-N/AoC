@@ -7,10 +7,12 @@ use nom::error::Error as NomError;
 use nom::multi::separated_list1;
 use nom::sequence::{pair, preceded, separated_pair, tuple};
 
-use crate::cc::TwoCC;
-use crate::ord::ProximityMap;
-
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    cc::TwoCC,
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+    ord::ProximityMap,
+};
 
 mod net;
 mod valve;
@@ -30,7 +32,7 @@ impl Day16 {
 }
 
 impl LineStreamHandler for Day16 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let two_cc = move || map(pair(anychar::<&str, NomError<&str>>, anychar), TwoCC::from);
         let (id, valve) = parse_full_string(
             line,
@@ -68,10 +70,10 @@ impl LineStreamHandler for Day16 {
 
         self.valves.insert(id, valve);
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         self.valves.add_virtual_starter()?;
         self.valves.prepare()?;
         let solo = self.valves.max_pressure_release(30, 1)?;
@@ -91,6 +93,6 @@ impl LineStreamHandler for Day16 {
     }
 }
 
-pub fn new() -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((16, "Proboscidea Volcanium", Box::new(Day16::new())))
+pub fn new() -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(16, "Proboscidea Volcanium", Day16::new()))
 }

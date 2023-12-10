@@ -7,10 +7,12 @@ use nom::character::complete::i32;
 use nom::combinator::map;
 use nom::sequence::{preceded, separated_pair};
 
-use crate::math::abs_diff;
-use crate::point::Point2;
-
-use super::{parse_full_string, LineStreamHandler, GOLD_ANSI, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+    math::abs_diff,
+    point::Point2,
+};
 
 mod multi_range;
 
@@ -76,7 +78,7 @@ impl Day15 {
 }
 
 impl LineStreamHandler for Day15 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let point = move || {
             map(
                 preceded(tag("x="), separated_pair(i32, tag(", y="), i32)),
@@ -108,10 +110,10 @@ impl LineStreamHandler for Day15 {
         }
         eprint!("{}", '.');
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         eprintln!();
         let mid_y = self.map_size / 2;
         println!(
@@ -140,16 +142,10 @@ impl LineStreamHandler for Day15 {
     }
 }
 
-pub fn new(
-    sample: bool,
-    verbose: bool,
-) -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((
+pub fn new(sample: bool, verbose: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(
         15,
         "Beacon Exclusion Zone",
-        Box::new(Day15::new(
-            verbose,
-            if sample { SAMPLE_MAP_SIZE } else { MAP_SIZE },
-        )),
+        Day15::new(verbose, if sample { SAMPLE_MAP_SIZE } else { MAP_SIZE }),
     ))
 }

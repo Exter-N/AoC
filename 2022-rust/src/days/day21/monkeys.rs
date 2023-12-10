@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 
 use either::Either;
 
-use crate::cc::FourCC;
+use aoc_common_rs::cc::FourCC;
 
 #[derive(Clone, Debug)]
 pub enum Operation {

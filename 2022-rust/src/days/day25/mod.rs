@@ -1,6 +1,9 @@
 use std::error::Error;
 
-use super::{LineStreamHandler, SILVER_ANSI};
+use aoc_common_rs::{
+    day::{Day, SILVER_ANSI},
+    line_stream::LineStreamHandler,
+};
 
 mod snafu;
 
@@ -18,14 +21,14 @@ impl Day25 {
 }
 
 impl LineStreamHandler for Day25 {
-    fn update(&mut self, line: &str) -> Result<Option<Box<dyn LineStreamHandler>>, Box<dyn Error>> {
+    fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let snafu = Snafu::try_from(line)?;
         self.sum += snafu.0;
 
-        Ok(None)
+        Ok(())
     }
 
-    fn finish(&mut self) -> Result<(), Box<dyn Error>> {
+    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         println!(
             "[{}] Sum of fuel requirements: {}",
             SILVER_ANSI,
@@ -36,6 +39,6 @@ impl LineStreamHandler for Day25 {
     }
 }
 
-pub fn new() -> Result<(u8, &'static str, Box<dyn LineStreamHandler>), Box<dyn Error>> {
-    Ok((25, "Full of Hot Air", Box::new(Day25::new())))
+pub fn new() -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(25, "Full of Hot Air", Day25::new()))
 }
