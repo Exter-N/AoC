@@ -42,4 +42,5 @@ pub enum Commands {
         gold: bool,
     },
     Day10,
+    Day11,
 }
