@@ -48,7 +48,10 @@ impl LineStreamHandler for WrappedLineStreamHandlerOnce {
             self.0 = Some(handler.update(line)?);
             Ok(())
         } else {
-            Err("cannot continue using a wrapped LineStreamHandlerOnce that returned an error".into())
+            Err(
+                "cannot continue using a wrapped LineStreamHandlerOnce that returned an error"
+                    .into(),
+            )
         }
     }
 

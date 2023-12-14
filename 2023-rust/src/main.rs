@@ -26,6 +26,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Commands::Day11 => days::day11::new(),
         Commands::Day12 { gold } => days::day12::new(gold),
         Commands::Day13 { gold } => days::day13::new(gold),
+        Commands::Day14 { gold } => days::day14::new(gold),
     }?;
 
     println!("--- Day {}: {} ---", day.number, day.title);

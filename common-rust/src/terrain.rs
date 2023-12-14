@@ -4,7 +4,7 @@ use itertools::Itertools;
 
 use crate::point::{Direction2, Point2};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Terrain<T> {
     width: usize,
     height: usize,
@@ -59,6 +59,12 @@ impl<T> Terrain<T> {
             .cartesian_product(0..self.width)
             .map(|(i, j)| Point2(j, i))
     }
+    pub fn points_rev(&self) -> impl Iterator<Item = Point2<usize>> {
+        (0..self.height)
+            .rev()
+            .cartesian_product((0..self.width).rev())
+            .map(|(i, j)| Point2(j, i))
+    }
     pub fn neighbors(
         &self,
         pt: Point2<usize>,
@@ -77,6 +83,109 @@ impl<T> Terrain<T> {
                 None
             }
         })
+    }
+    pub fn walk_until(
+        &self,
+        from: Point2<usize>,
+        from_inclusive: bool,
+        towards: Direction2,
+        mut predicate: impl FnMut(Point2<usize>) -> bool,
+    ) -> Option<Point2<usize>> {
+        if from_inclusive && predicate(from) {
+            return Some(from);
+        }
+        match towards {
+            Direction2::Right => {
+                if from.0 >= self.width {
+                    return None;
+                }
+                let mut tx = from.0 + 1;
+                while tx < self.width {
+                    if predicate(Point2(tx, from.1)) {
+                        return Some(Point2(tx, from.1));
+                    }
+                    tx += 1;
+                }
+            }
+            Direction2::Down => {
+                if from.1 >= self.height {
+                    return None;
+                }
+                let mut ty = from.1 + 1;
+                while ty < self.height {
+                    if predicate(Point2(from.0, ty)) {
+                        return Some(Point2(from.0, ty));
+                    }
+                    ty += 1;
+                }
+            }
+            Direction2::Left => {
+                let mut tx = from.0;
+                while tx > 0 {
+                    tx -= 1;
+                    if predicate(Point2(tx, from.1)) {
+                        return Some(Point2(tx, from.1));
+                    }
+                }
+            }
+            Direction2::Up => {
+                let mut ty = from.1;
+                while ty > 0 {
+                    ty -= 1;
+                    if predicate(Point2(from.0, ty)) {
+                        return Some(Point2(from.0, ty));
+                    }
+                }
+            }
+        }
+        None
+    }
+    pub fn walk_while(
+        &self,
+        from: Point2<usize>,
+        towards: Direction2,
+        mut predicate: impl FnMut(Point2<usize>) -> bool,
+    ) -> Point2<usize> {
+        match towards {
+            Direction2::Right => {
+                if from.0 >= self.width {
+                    return from;
+                }
+                let mut tx = from.0;
+                let mut new_tx = tx + 1;
+                while new_tx < self.width && predicate(Point2(new_tx, from.1)) {
+                    tx = new_tx;
+                    new_tx += 1;
+                }
+                Point2(tx, from.1)
+            }
+            Direction2::Down => {
+                if from.1 >= self.height {
+                    return from;
+                }
+                let mut ty = from.1;
+                let mut new_ty = ty + 1;
+                while new_ty < self.height && predicate(Point2(from.0, new_ty)) {
+                    ty = new_ty;
+                    new_ty += 1;
+                }
+                Point2(from.0, ty)
+            }
+            Direction2::Left => {
+                let mut tx = from.0;
+                while tx > 0 && predicate(Point2(tx - 1, from.1)) {
+                    tx -= 1;
+                }
+                Point2(tx, from.1)
+            }
+            Direction2::Up => {
+                let mut ty = from.1;
+                while ty > 0 && predicate(Point2(from.0, ty - 1)) {
+                    ty -= 1;
+                }
+                Point2(from.0, ty)
+            }
+        }
     }
 }
 
