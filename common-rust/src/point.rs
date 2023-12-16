@@ -4,12 +4,22 @@ use std::hash::Hash;
 use std::ops::{Add, AddAssign, Neg, Sub, SubAssign};
 
 use num_traits::identities::{one, zero};
-use num_traits::{One, Signed};
+use num_traits::ops::overflowing::{OverflowingAdd, OverflowingSub};
+use num_traits::{One, Signed, Zero};
 
 use crate::math::abs_diff;
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Point2<T>(pub T, pub T);
+
+impl<T> Point2<T>
+where
+    T: Zero,
+{
+    pub fn zero() -> Self {
+        Self(zero(), zero())
+    }
+}
 
 impl<T> Point2<T>
 where
@@ -92,10 +102,61 @@ where
 
 impl<T> Point2<T>
 where
+    T: OverflowingAdd + Copy + OverflowingSub,
+{
+    pub fn try_towards(self, towards: Direction2, distance: T) -> Option<Self> {
+        match towards {
+            Direction2::Right => {
+                let (new_x, overflow) = self.0.overflowing_add(&distance);
+                if overflow {
+                    None
+                } else {
+                    Some(self.with_x(new_x))
+                }
+            }
+            Direction2::Down => {
+                let (new_y, overflow) = self.1.overflowing_add(&distance);
+                if overflow {
+                    None
+                } else {
+                    Some(self.with_y(new_y))
+                }
+            }
+            Direction2::Left => {
+                let (new_x, overflow) = self.0.overflowing_sub(&distance);
+                if overflow {
+                    None
+                } else {
+                    Some(self.with_x(new_x))
+                }
+            }
+            Direction2::Up => {
+                let (new_y, overflow) = self.1.overflowing_sub(&distance);
+                if overflow {
+                    None
+                } else {
+                    Some(self.with_y(new_y))
+                }
+            }
+        }
+    }
+}
+
+impl<T> Point2<T>
+where
     T: Add<T, Output = T> + Copy + One + Sub<T, Output = T>,
 {
     pub fn next_towards(self, towards: Direction2) -> Self {
         self.towards(towards, one())
+    }
+}
+
+impl<T> Point2<T>
+where
+    T: OverflowingAdd + Copy + One + OverflowingSub,
+{
+    pub fn try_next_towards(self, towards: Direction2) -> Option<Self> {
+        self.try_towards(towards, one())
     }
 }
 
@@ -113,6 +174,28 @@ where
 
 impl<T> Point2<T>
 where
+    T: OverflowingAdd + Copy + One,
+{
+    pub fn try_next_right(self) -> Option<Self> {
+        let (new_x, overflow) = self.0.overflowing_add(&one());
+        if overflow {
+            None
+        } else {
+            Some(self.with_x(new_x))
+        }
+    }
+    pub fn try_next_down(self) -> Option<Self> {
+        let (new_y, overflow) = self.1.overflowing_add(&one());
+        if overflow {
+            None
+        } else {
+            Some(self.with_y(new_y))
+        }
+    }
+}
+
+impl<T> Point2<T>
+where
     T: Sub<T, Output = T> + Copy + One,
 {
     pub fn next_left(self) -> Self {
@@ -120,6 +203,44 @@ where
     }
     pub fn next_up(self) -> Self {
         self.with_y(self.1 - one())
+    }
+}
+
+impl<T> Point2<T>
+where
+    T: OverflowingSub + Copy + One,
+{
+    pub fn try_next_left(self) -> Option<Self> {
+        let (new_x, overflow) = self.0.overflowing_sub(&one());
+        if overflow {
+            None
+        } else {
+            Some(self.with_x(new_x))
+        }
+    }
+    pub fn try_next_up(self) -> Option<Self> {
+        let (new_y, overflow) = self.1.overflowing_sub(&one());
+        if overflow {
+            None
+        } else {
+            Some(self.with_y(new_y))
+        }
+    }
+}
+
+impl<T> PartialOrd for Point2<T>
+where
+    T: PartialOrd,
+{
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if let Some(cmp_x) = self.0.partial_cmp(&other.0) {
+            if let Some(cmp_y) = self.1.partial_cmp(&other.1) {
+                if cmp_x == cmp_y {
+                    return Some(cmp_x);
+                }
+            }
+        }
+        None
     }
 }
 
@@ -167,6 +288,15 @@ where
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Point3<T>(pub T, pub T, pub T);
+
+impl<T> Point3<T>
+where
+    T: Zero,
+{
+    pub fn zero() -> Self {
+        Self(zero(), zero(), zero())
+    }
+}
 
 impl<T> Point3<T>
 where
@@ -281,10 +411,77 @@ where
 
 impl<T> Point3<T>
 where
+    T: OverflowingAdd + Copy + OverflowingSub,
+{
+    pub fn try_towards(self, towards: Direction3, distance: T) -> Option<Self> {
+        match towards {
+            Direction3::Right => {
+                let (new_x, overflow) = self.0.overflowing_add(&distance);
+                if overflow {
+                    None
+                } else {
+                    Some(self.with_x(new_x))
+                }
+            }
+            Direction3::Down => {
+                let (new_y, overflow) = self.1.overflowing_add(&distance);
+                if overflow {
+                    None
+                } else {
+                    Some(self.with_y(new_y))
+                }
+            }
+            Direction3::Back => {
+                let (new_z, overflow) = self.2.overflowing_add(&distance);
+                if overflow {
+                    None
+                } else {
+                    Some(self.with_z(new_z))
+                }
+            }
+            Direction3::Left => {
+                let (new_x, overflow) = self.0.overflowing_sub(&distance);
+                if overflow {
+                    None
+                } else {
+                    Some(self.with_x(new_x))
+                }
+            }
+            Direction3::Up => {
+                let (new_y, overflow) = self.1.overflowing_sub(&distance);
+                if overflow {
+                    None
+                } else {
+                    Some(self.with_y(new_y))
+                }
+            }
+            Direction3::Front => {
+                let (new_z, overflow) = self.2.overflowing_sub(&distance);
+                if overflow {
+                    None
+                } else {
+                    Some(self.with_z(new_z))
+                }
+            }
+        }
+    }
+}
+
+impl<T> Point3<T>
+where
     T: Add<T, Output = T> + Copy + One + Sub<T, Output = T>,
 {
     pub fn next_towards(self, towards: Direction3) -> Self {
         self.towards(towards, one())
+    }
+}
+
+impl<T> Point3<T>
+where
+    T: OverflowingAdd + Copy + One + OverflowingSub,
+{
+    pub fn try_next_towards(self, towards: Direction3) -> Option<Self> {
+        self.try_towards(towards, one())
     }
 }
 
@@ -305,6 +502,36 @@ where
 
 impl<T> Point3<T>
 where
+    T: OverflowingAdd + Copy + One,
+{
+    pub fn try_next_right(self) -> Option<Self> {
+        let (new_x, overflow) = self.0.overflowing_add(&one());
+        if overflow {
+            None
+        } else {
+            Some(self.with_x(new_x))
+        }
+    }
+    pub fn try_next_down(self) -> Option<Self> {
+        let (new_y, overflow) = self.1.overflowing_add(&one());
+        if overflow {
+            None
+        } else {
+            Some(self.with_y(new_y))
+        }
+    }
+    pub fn try_next_back(self) -> Option<Self> {
+        let (new_z, overflow) = self.2.overflowing_add(&one());
+        if overflow {
+            None
+        } else {
+            Some(self.with_z(new_z))
+        }
+    }
+}
+
+impl<T> Point3<T>
+where
     T: Sub<T, Output = T> + Copy + One,
 {
     pub fn next_left(self) -> Self {
@@ -315,6 +542,54 @@ where
     }
     pub fn next_front(self) -> Self {
         self.with_z(self.2 - one())
+    }
+}
+
+impl<T> Point3<T>
+where
+    T: OverflowingSub + Copy + One,
+{
+    pub fn try_next_left(self) -> Option<Self> {
+        let (new_x, overflow) = self.0.overflowing_sub(&one());
+        if overflow {
+            None
+        } else {
+            Some(self.with_x(new_x))
+        }
+    }
+    pub fn try_next_up(self) -> Option<Self> {
+        let (new_y, overflow) = self.1.overflowing_sub(&one());
+        if overflow {
+            None
+        } else {
+            Some(self.with_y(new_y))
+        }
+    }
+    pub fn try_next_front(self) -> Option<Self> {
+        let (new_z, overflow) = self.2.overflowing_sub(&one());
+        if overflow {
+            None
+        } else {
+            Some(self.with_z(new_z))
+        }
+    }
+}
+
+impl<T> PartialOrd for Point3<T>
+where
+    T: PartialOrd,
+{
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if let Some(cmp_x) = self.0.partial_cmp(&other.0) {
+            if let Some(cmp_y) = self.1.partial_cmp(&other.1) {
+                if let Some(cmp_z) = self.2.partial_cmp(&other.2) {
+                    if cmp_x == cmp_y && cmp_x == cmp_z {
+                        return Some(cmp_x);
+                    }
+                }
+            }
+        }
+        None
     }
 }
 

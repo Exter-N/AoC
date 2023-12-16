@@ -44,6 +44,9 @@ impl<T> Terrain<T> {
     pub fn height(&self) -> usize {
         self.height
     }
+    pub fn size(&self) -> Point2<usize> {
+        Point2(self.width, self.height)
+    }
     pub fn new_row(&self) -> Vec<T> {
         Vec::with_capacity(self.width)
     }
