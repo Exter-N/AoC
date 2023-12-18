@@ -9,6 +9,7 @@ use nom::{
 use aoc_common_rs::{
     day::{Day, GOLD_ANSI, SILVER_ANSI},
     line_stream::{parse_full_string, LineStreamHandler},
+    unwrap_either,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Debug)]
@@ -364,10 +365,7 @@ impl LineStreamHandler for Day7 {
                 u32,
             ),
         )?;
-        let i = match self.hands.binary_search_by_key(&hand, |(hand, _)| *hand) {
-            Ok(i) => i,
-            Err(i) => i,
-        };
+        let i = unwrap_either(self.hands.binary_search_by_key(&hand, |(hand, _)| *hand));
         self.hands.insert(i, (hand, bid));
         Ok(())
     }

@@ -1,5 +1,7 @@
 use std::ops::Range;
 
+use aoc_common_rs::ord::binary_search_range_by_key;
+
 #[derive(Clone, Copy, Debug)]
 enum Token {
     Number(u32),
@@ -70,16 +72,12 @@ impl Symbol {
 }
 
 fn symbols_around_range(symbols: &[Symbol], position: &Range<usize>) -> Range<usize> {
-    let start =
-        match symbols.binary_search_by_key(&position.start.saturating_sub(1), |sym| sym.position) {
-            Ok(i) => i,
-            Err(i) => i,
-        };
-    let end = match symbols.binary_search_by_key(&position.end, |sym| sym.position) {
-        Ok(i) => i + 1,
-        Err(i) => i,
-    };
-    start..end
+    binary_search_range_by_key(
+        &symbols,
+        &position.start.saturating_sub(1),
+        &position.end,
+        |sym| sym.position,
+    )
 }
 
 fn symbols_around<'a>(symbols: &'a [Symbol], position: &Range<usize>) -> &'a [Symbol] {

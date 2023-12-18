@@ -7,6 +7,7 @@ use std::{
 use aoc_common_rs::{
     day::{Day, GOLD_ANSI, SILVER_ANSI},
     line_stream::LineStreamHandler,
+    ord::binary_search_range,
     point::Point2,
 };
 
@@ -16,19 +17,6 @@ struct Day11 {
     empty_rows: Vec<usize>,
     width: usize,
     height: usize,
-}
-
-fn binary_search_range<T>(slice: &[T], lower: &T, upper: &T) -> Range<usize>
-where
-    T: Ord,
-{
-    (match slice.binary_search(lower) {
-        Ok(n) => n,
-        Err(n) => n,
-    })..(match slice.binary_search(upper) {
-        Ok(n) => n + 1,
-        Err(n) => n,
-    })
 }
 
 #[inline(always)]

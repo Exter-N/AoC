@@ -4,7 +4,7 @@ use std::ops::{Add, Deref, Div, RangeInclusive, Sub};
 use num_traits::{one, zero, One, PrimInt, Zero};
 
 use crate::math::is_integer;
-use crate::ord::binary_search_by;
+use crate::unwrap_either;
 
 #[derive(Clone, Debug)]
 #[repr(transparent)]
@@ -41,7 +41,9 @@ where
     T: Ord,
 {
     pub fn contains(&self, value: &T) -> bool {
-        binary_search_by(&self.0, value, range_cmp).0
+        self.0
+            .binary_search_by(|range| range_cmp(range, value))
+            .is_ok()
     }
 }
 
@@ -50,17 +52,28 @@ where
     T: Copy + Ord,
 {
     pub fn retain(&mut self, value: RangeInclusive<T>) {
-        let (start_found, start_pos) = binary_search_by(&self.0, value.start(), range_cmp);
-        let (end_found, end_pos) = binary_search_by(&self.0, value.end(), range_cmp);
-        if end_found {
-            self.0.drain((end_pos + 1)..);
-            self.0[end_pos] = (*self.0[end_pos].start())..=(*value.end());
-        } else {
-            self.0.drain(end_pos..);
+        match self
+            .0
+            .binary_search_by(|range| range_cmp(range, value.end()))
+        {
+            Ok(end_pos) => {
+                self.0.drain((end_pos + 1)..);
+                self.0[end_pos] = (*self.0[end_pos].start())..=(*value.end());
+            }
+            Err(end_pos) => {
+                self.0.drain(end_pos..);
+            }
         }
-        if start_found {
-            self.0[start_pos] = (*value.start())..=(*self.0[start_pos].end());
-        }
+        let start_pos = match self
+            .0
+            .binary_search_by(|range| range_cmp(range, value.start()))
+        {
+            Ok(start_pos) => {
+                self.0[start_pos] = (*value.start())..=(*self.0[start_pos].end());
+                start_pos
+            }
+            Err(start_pos) => start_pos,
+        };
         self.0.drain(0..start_pos);
     }
 }
@@ -70,28 +83,36 @@ where
     T: Copy + Div<T, Output = T> + One + Ord + PartialEq + Zero,
 {
     pub fn insert(&mut self, value: RangeInclusive<T>) {
-        let (start_found, start_pos) = binary_search_by(&self.0, value.start(), range_cmp);
-        let (end_found, end_pos) = binary_search_by(&self.0, value.end(), range_cmp);
-        if start_found {
-            if end_found {
+        let start_pos = match (
+            self.0
+                .binary_search_by(|range| range_cmp(range, value.start())),
+            self.0
+                .binary_search_by(|range| range_cmp(range, value.end())),
+        ) {
+            (Ok(start_pos), Ok(end_pos)) => {
                 self.0.splice(
                     start_pos..=end_pos,
                     [range_union(&self.0[start_pos], &self.0[end_pos])],
                 );
-            } else {
+                start_pos
+            }
+            (Ok(start_pos), Err(end_pos)) => {
                 self.0.splice(
                     start_pos..end_pos,
                     [range_union(&self.0[start_pos], &value)],
                 );
+                start_pos
             }
-        } else {
-            if end_found {
+            (Err(start_pos), Ok(end_pos)) => {
                 self.0
                     .splice(start_pos..=end_pos, [range_union(&value, &self.0[end_pos])]);
-            } else {
-                self.0.splice(start_pos..end_pos, [value]);
+                start_pos
             }
-        }
+            (Err(start_pos), Err(end_pos)) => {
+                self.0.splice(start_pos..end_pos, [value]);
+                start_pos
+            }
+        };
         if is_integer::<T>() {
             if start_pos + 1 < self.0.len() {
                 self.merge_contiguous(start_pos + 1);
@@ -108,41 +129,58 @@ where
     T: Copy + Div<T, Output = T> + One + Ord + PartialEq + Sub<T, Output = T> + Zero,
 {
     pub fn remove(&mut self, value: RangeInclusive<T>) {
-        let (mut start_found, mut start_pos) = binary_search_by(&self.0, value.start(), range_cmp);
-        let (end_found, mut end_pos) = binary_search_by(&self.0, value.end(), range_cmp);
-        if start_found
-            && end_found
-            && start_pos == end_pos
-            && value.start() != self.0[start_pos].start()
-            && value.end() != self.0[end_pos].end()
-        {
-            self.0.insert(
-                end_pos + 1,
-                (*value.end() + one::<T>())..=(*self.0[end_pos].end()),
-            );
-            self.0[start_pos] = (*self.0[start_pos].start())..=(*value.start() - one::<T>());
-            return;
+        let mut start = self
+            .0
+            .binary_search_by(|range| range_cmp(range, value.start()));
+        let mut end = self
+            .0
+            .binary_search_by(|range| range_cmp(range, value.end()));
+        if let Ok(start_pos) = start {
+            if let Ok(end_pos) = end {
+                if start_pos == end_pos
+                    && value.start() != self.0[start_pos].start()
+                    && value.end() != self.0[end_pos].end()
+                {
+                    self.0.insert(
+                        end_pos + 1,
+                        (*value.end() + one::<T>())..=(*self.0[end_pos].end()),
+                    );
+                    self.0[start_pos] =
+                        (*self.0[start_pos].start())..=(*value.start() - one::<T>());
+                    return;
+                }
+            }
         }
-        if end_found {
+        if let Ok(end_pos) = end {
             if value.end() == self.0[end_pos].end() {
-                if !start_found || start_pos != end_pos {
-                    end_pos = end_pos + 1;
+                if let Ok(start_pos) = start {
+                    if start_pos != end_pos {
+                        end = Ok(end_pos + 1);
+                    }
+                } else {
+                    end = Ok(end_pos + 1);
                 }
             } else {
                 self.0[end_pos] = (*value.end() + one::<T>())..=(*self.0[end_pos].end());
-                if start_found && start_pos == end_pos {
-                    start_found = false;
+                if let Ok(start_pos) = start {
+                    if start_pos == end_pos {
+                        start = Err(start_pos);
+                    }
                 }
             }
         }
-        if start_found {
+        if let Ok(start_pos) = start {
             if value.start() != self.0[start_pos].start() {
                 self.0[start_pos] = (*self.0[start_pos].start())..=(*value.start() - one::<T>());
-                start_pos = start_pos + 1;
+                start = Ok(start_pos + 1);
             }
         }
-        if start_pos < end_pos {
-            self.0.drain(start_pos..end_pos);
+        {
+            let start_pos = unwrap_either(start);
+            let end_pos = unwrap_either(end);
+            if start_pos < end_pos {
+                self.0.drain(start_pos..end_pos);
+            }
         }
     }
 }

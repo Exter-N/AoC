@@ -1,8 +1,10 @@
-use std::cmp::{min, Ordering};
+use std::cmp::min;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::mem::swap;
-use std::ops::Deref;
+use std::ops::{Deref, Range};
+
+use crate::unwrap_either;
 
 #[derive(Debug)]
 #[repr(transparent)]
@@ -15,10 +17,7 @@ where
     T: Ord,
 {
     pub fn insert(&mut self, value: T) {
-        let position = match self.0.binary_search(&value) {
-            Ok(index) => index,
-            Err(index) => index,
-        };
+        let position = unwrap_either(self.0.binary_search(&value));
         let mut v = value;
         for i in (0..position).rev() {
             swap(&mut v, &mut self.0[i]);
@@ -101,10 +100,7 @@ pub fn insert_sorted<T>(vec: &mut Vec<T>, element: T) -> usize
 where
     T: Ord,
 {
-    let index = match vec.binary_search(&element) {
-        Ok(index) => index,
-        Err(index) => index,
-    };
+    let index = unwrap_either(vec.binary_search(&element));
     vec.insert(index, element);
     index
 }
@@ -114,10 +110,7 @@ where
     U: Ord,
     F: FnMut(&T) -> U,
 {
-    let index = match vec.binary_search_by_key(&key_extractor(&element), key_extractor) {
-        Ok(index) => index,
-        Err(index) => index,
-    };
+    let index = unwrap_either(vec.binary_search_by_key(&key_extractor(&element), key_extractor));
     vec.insert(index, element);
     index
 }
@@ -145,22 +138,29 @@ where
     }
 }
 
-pub fn binary_search<T>(slice: &[T], value: &T) -> (bool, usize)
+pub fn binary_search_range<T>(slice: &[T], lower: &T, upper: &T) -> Range<usize>
 where
     T: Ord,
 {
-    match slice.binary_search(value) {
-        Ok(pos) => (true, pos),
-        Err(pos) => (false, pos),
-    }
+    unwrap_either(slice.binary_search(lower))..(match slice.binary_search(upper) {
+        Ok(n) => n + 1,
+        Err(n) => n,
+    })
 }
 
-pub fn binary_search_by<T, U, F>(slice: &[T], value: &U, mut compare: F) -> (bool, usize)
+pub fn binary_search_range_by_key<'a, T, U, F>(
+    slice: &'a [T],
+    lower: &U,
+    upper: &U,
+    mut key_extractor: F,
+) -> Range<usize>
 where
-    F: FnMut(&T, &U) -> Ordering,
+    U: Ord,
+    F: FnMut(&'a T) -> U,
 {
-    match slice.binary_search_by(move |element| compare(element, value)) {
-        Ok(pos) => (true, pos),
-        Err(pos) => (false, pos),
-    }
+    unwrap_either(slice.binary_search_by_key(lower, &mut key_extractor))
+        ..(match slice.binary_search_by_key(upper, &mut key_extractor) {
+            Ok(i) => i + 1,
+            Err(i) => i,
+        })
 }

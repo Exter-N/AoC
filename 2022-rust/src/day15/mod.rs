@@ -15,7 +15,6 @@ use aoc_common_rs::{
     point::Point2,
 };
 
-
 const SAMPLE_MAP_SIZE: usize = 20;
 const MAP_SIZE: usize = 4_000_000;
 

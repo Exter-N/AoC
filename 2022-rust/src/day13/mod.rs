@@ -5,7 +5,7 @@ use nom::combinator::opt;
 use aoc_common_rs::{
     day::{Day, GOLD_ANSI, SILVER_ANSI},
     line_stream::{parse_full_string, LineStreamHandler},
-    ord::binary_search,
+    unwrap_either,
 };
 
 mod packet;
@@ -47,8 +47,8 @@ impl LineStreamHandler for Day13 {
             SILVER_ANSI, self.well_ordered_index_sum
         );
 
-        let (_, pos2) = binary_search(&self.packets, &divider(2));
-        let (_, pos6) = binary_search(&self.packets, &divider(6));
+        let pos2 = unwrap_either(self.packets.binary_search(&divider(2)));
+        let pos6 = unwrap_either(self.packets.binary_search(&divider(6)));
 
         println!(
             "[{}] Decoder key:            {}",
