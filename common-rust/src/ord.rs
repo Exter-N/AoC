@@ -15,7 +15,10 @@ where
     T: Ord,
 {
     pub fn insert(&mut self, value: T) {
-        let (_, position) = binary_search(&self.0, &value);
+        let position = match self.0.binary_search(&value) {
+            Ok(index) => index,
+            Err(index) => index,
+        };
         let mut v = value;
         for i in (0..position).rev() {
             swap(&mut v, &mut self.0[i]);
@@ -94,66 +97,70 @@ where
     }
 }
 
+pub fn insert_sorted<T>(vec: &mut Vec<T>, element: T) -> usize
+where
+    T: Ord,
+{
+    let index = match vec.binary_search(&element) {
+        Ok(index) => index,
+        Err(index) => index,
+    };
+    vec.insert(index, element);
+    index
+}
+
+pub fn insert_sorted_by_key<T, U, F>(vec: &mut Vec<T>, element: T, mut key_extractor: F) -> usize
+where
+    U: Ord,
+    F: FnMut(&T) -> U,
+{
+    let index = match vec.binary_search_by_key(&key_extractor(&element), key_extractor) {
+        Ok(index) => index,
+        Err(index) => index,
+    };
+    vec.insert(index, element);
+    index
+}
+
+pub fn remove_sorted<T>(vec: &mut Vec<T>, element: &T) -> Option<T>
+where
+    T: Ord,
+{
+    if let Ok(index) = vec.binary_search(element) {
+        Some(vec.remove(index))
+    } else {
+        None
+    }
+}
+
+pub fn remove_sorted_by_key<T, U, F>(vec: &mut Vec<T>, key: &U, key_extractor: F) -> Option<T>
+where
+    U: Ord,
+    F: FnMut(&T) -> U,
+{
+    if let Ok(index) = vec.binary_search_by_key(key, key_extractor) {
+        Some(vec.remove(index))
+    } else {
+        None
+    }
+}
+
 pub fn binary_search<T>(slice: &[T], value: &T) -> (bool, usize)
 where
     T: Ord,
 {
-    if slice.is_empty() {
-        return (false, 0);
+    match slice.binary_search(value) {
+        Ok(pos) => (true, pos),
+        Err(pos) => (false, pos),
     }
-
-    let mut left: usize = 0;
-    let mut right: usize = slice.len() - 1;
-
-    while left <= right {
-        let middle = left + (right - left) / 2;
-        match slice[middle].cmp(value) {
-            Ordering::Equal => {
-                return (true, middle);
-            }
-            Ordering::Less => {
-                left = middle + 1;
-            }
-            Ordering::Greater => {
-                if middle == 0 {
-                    return (false, left);
-                }
-                right = middle - 1;
-            }
-        }
-    }
-
-    (false, left)
 }
 
 pub fn binary_search_by<T, U, F>(slice: &[T], value: &U, mut compare: F) -> (bool, usize)
 where
     F: FnMut(&T, &U) -> Ordering,
 {
-    if slice.is_empty() {
-        return (false, 0);
+    match slice.binary_search_by(move |element| compare(element, value)) {
+        Ok(pos) => (true, pos),
+        Err(pos) => (false, pos),
     }
-
-    let mut left: usize = 0;
-    let mut right: usize = slice.len() - 1;
-
-    while left <= right {
-        let middle = left + (right - left) / 2;
-        match compare(&slice[middle], value) {
-            Ordering::Equal => {
-                return (true, middle);
-            }
-            Ordering::Less => {
-                left = middle + 1;
-            }
-            Ordering::Greater => {
-                if middle == 0 {
-                    return (false, left);
-                }
-                right = middle - 1;
-            }
-        }
-    }
-
-    (false, left)
 }

@@ -21,6 +21,7 @@ mod day14;
 mod day15;
 mod day16;
 mod day17;
+mod day18;
 
 use aoc_common_rs::day::Day;
 use cli::{Cli, Commands};
@@ -46,6 +47,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Commands::Day15 => day15::new(),
         Commands::Day16 { gold } => day16::new(gold),
         Commands::Day17 { gold } => day17::new(gold),
+        Commands::Day18 { gold } => day18::new(gold),
     }?;
 
     println!("--- Day {}: {} ---", day.number, day.title);

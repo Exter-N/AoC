@@ -74,8 +74,18 @@ impl LineStreamHandler for Day17 {
     fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         let size = self.terrain.size();
         let mut next: Vec<(Point2<usize>, Direction2, usize, usize)> = Vec::new();
-        next.push((Point2(self.min_straight, 0), Direction2::Right, self.cost(Point2(1, 0), Direction2::Right, self.min_straight - 1), self.min_straight));
-        next.push((Point2(0, self.min_straight), Direction2::Down, self.cost(Point2(0, 1), Direction2::Down, self.min_straight - 1), self.min_straight));
+        next.push((
+            Point2(self.min_straight, 0),
+            Direction2::Right,
+            self.cost(Point2(1, 0), Direction2::Right, self.min_straight - 1),
+            self.min_straight,
+        ));
+        next.push((
+            Point2(0, self.min_straight),
+            Direction2::Down,
+            self.cost(Point2(0, 1), Direction2::Down, self.min_straight - 1),
+            self.min_straight,
+        ));
         while next.len() > 0 {
             for (pt, dir, path_cost, straight) in take(&mut next) {
                 let tile = &mut self.terrain[pt];
@@ -95,19 +105,33 @@ impl LineStreamHandler for Day17 {
                 let cw_dir = dir.clockwise();
                 if let Some(next_pt) = pt.try_towards(cw_dir, self.min_straight) {
                     if next_pt < size {
-                        next.push((next_pt, cw_dir, path_cost + self.cost(pt, cw_dir, self.min_straight), self.min_straight));
+                        next.push((
+                            next_pt,
+                            cw_dir,
+                            path_cost + self.cost(pt, cw_dir, self.min_straight),
+                            self.min_straight,
+                        ));
                     }
                 }
                 let ccw_dir = dir.counterclockwise();
                 if let Some(next_pt) = pt.try_towards(ccw_dir, self.min_straight) {
                     if next_pt < size {
-                        next.push((next_pt, ccw_dir, path_cost + self.cost(pt, ccw_dir, self.min_straight), self.min_straight));
+                        next.push((
+                            next_pt,
+                            ccw_dir,
+                            path_cost + self.cost(pt, ccw_dir, self.min_straight),
+                            self.min_straight,
+                        ));
                     }
                 }
             }
         }
         let end_corner = &self.terrain[self.terrain.size() - Point2(1, 1)];
-        println!("[{}] Best path cost: {}", SILVER_ANSI, end_corner.best_path_cost().1 + end_corner.cost as usize);
+        println!(
+            "[{}] Best path cost: {}",
+            SILVER_ANSI,
+            end_corner.best_path_cost().1 + end_corner.cost as usize
+        );
         Ok(())
     }
 }

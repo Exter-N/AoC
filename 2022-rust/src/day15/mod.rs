@@ -11,12 +11,10 @@ use aoc_common_rs::{
     day::{Day, GOLD_ANSI, SILVER_ANSI},
     line_stream::{parse_full_string, LineStreamHandler},
     math::abs_diff,
+    multi_range::MultiRangeInclusive,
     point::Point2,
 };
 
-mod multi_range;
-
-use multi_range::MultiRangeInclusive;
 
 const SAMPLE_MAP_SIZE: usize = 20;
 const MAP_SIZE: usize = 4_000_000;
