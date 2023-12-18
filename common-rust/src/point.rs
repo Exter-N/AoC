@@ -1,7 +1,7 @@
 use std::cmp::{max, min, Ordering};
 use std::error::Error;
 use std::hash::Hash;
-use std::ops::{Add, AddAssign, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Index, IndexMut, Neg, Sub, SubAssign};
 
 use num_traits::identities::{one, zero};
 use num_traits::ops::overflowing::{OverflowingAdd, OverflowingSub};
@@ -858,6 +858,106 @@ impl From<Direction2> for Direction3 {
             Direction2::Down => Self::Down,
             Direction2::Left => Self::Left,
             Direction2::Up => Self::Up,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
+pub struct Directional2<T> {
+    pub right: T,
+    pub down: T,
+    pub left: T,
+    pub up: T,
+}
+
+impl<T> From<T> for Directional2<T>
+where
+    T: Clone,
+{
+    fn from(value: T) -> Self {
+        Self {
+            right: value.clone(),
+            down: value.clone(),
+            left: value.clone(),
+            up: value,
+        }
+    }
+}
+
+impl<T> Index<Direction2> for Directional2<T> {
+    type Output = T;
+
+    fn index(&self, index: Direction2) -> &Self::Output {
+        match index {
+            Direction2::Right => &self.right,
+            Direction2::Down => &self.down,
+            Direction2::Left => &self.left,
+            Direction2::Up => &self.up,
+        }
+    }
+}
+
+impl<T> IndexMut<Direction2> for Directional2<T> {
+    fn index_mut(&mut self, index: Direction2) -> &mut Self::Output {
+        match index {
+            Direction2::Right => &mut self.right,
+            Direction2::Down => &mut self.down,
+            Direction2::Left => &mut self.left,
+            Direction2::Up => &mut self.up,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
+pub struct Directional3<T> {
+    pub right: T,
+    pub down: T,
+    pub back: T,
+    pub left: T,
+    pub up: T,
+    pub front: T,
+}
+
+impl<T> From<T> for Directional3<T>
+where
+    T: Clone,
+{
+    fn from(value: T) -> Self {
+        Self {
+            right: value.clone(),
+            down: value.clone(),
+            back: value.clone(),
+            left: value.clone(),
+            up: value.clone(),
+            front: value,
+        }
+    }
+}
+
+impl<T> Index<Direction3> for Directional3<T> {
+    type Output = T;
+
+    fn index(&self, index: Direction3) -> &Self::Output {
+        match index {
+            Direction3::Right => &self.right,
+            Direction3::Down => &self.down,
+            Direction3::Back => &self.back,
+            Direction3::Left => &self.left,
+            Direction3::Up => &self.up,
+            Direction3::Front => &self.front,
+        }
+    }
+}
+
+impl<T> IndexMut<Direction3> for Directional3<T> {
+    fn index_mut(&mut self, index: Direction3) -> &mut Self::Output {
+        match index {
+            Direction3::Right => &mut self.right,
+            Direction3::Down => &mut self.down,
+            Direction3::Back => &mut self.back,
+            Direction3::Left => &mut self.left,
+            Direction3::Up => &mut self.up,
+            Direction3::Front => &mut self.front,
         }
     }
 }
