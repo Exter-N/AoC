@@ -18,6 +18,12 @@ impl TwoCC {
     pub const fn second(self) -> char {
         (self.0 & 255) as u8 as char
     }
+    pub fn from_lax(value: &str) -> Self {
+        let mut chars = value.chars();
+        let first = chars.next().unwrap_or('\0');
+        let second = chars.next().unwrap_or('\0');
+        Self::new(first, second)
+    }
 }
 
 impl From<&TwoCC> for u16 {
@@ -112,6 +118,13 @@ impl ThreeCC {
     #[inline(always)]
     pub const fn third(self) -> char {
         self.2 as char
+    }
+    pub fn from_lax(value: &str) -> Self {
+        let mut chars = value.chars();
+        let first = chars.next().unwrap_or('\0');
+        let second = chars.next().unwrap_or('\0');
+        let third = chars.next().unwrap_or('\0');
+        Self::new(first, second, third)
     }
 }
 
@@ -224,6 +237,14 @@ impl FourCC {
     #[inline(always)]
     pub const fn fourth(self) -> char {
         (self.0 & 255) as u8 as char
+    }
+    pub fn from_lax(value: &str) -> Self {
+        let mut chars = value.chars();
+        let first = chars.next().unwrap_or('\0');
+        let second = chars.next().unwrap_or('\0');
+        let third = chars.next().unwrap_or('\0');
+        let fourth = chars.next().unwrap_or('\0');
+        Self::new(first, second, third, fourth)
     }
 }
 
