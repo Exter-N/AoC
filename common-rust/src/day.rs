@@ -6,6 +6,7 @@ pub const GOLD_ANSI: &str = "\x1B[38;2;255;215;0mG\x1B[m";
 pub const SILVER_ANSI: &str = "\x1B[38;2;192;192;192mS\x1B[m";
 
 pub struct Day {
+    pub display_banner: bool,
     pub number: u8,
     pub title: &'static str,
     pub handler: RefCell<Box<dyn LineStreamHandler>>,
@@ -17,6 +18,7 @@ impl Day {
         H: LineStreamHandler + 'static,
     {
         Self {
+            display_banner: true,
             number,
             title,
             handler: RefCell::new(Box::new(handler)),
@@ -28,6 +30,11 @@ impl Day {
         H: LineStreamHandlerOnce + 'static,
     {
         Self::new(number, title, wrap_once(handler))
+    }
+
+    pub fn with_display_banner(mut self, display_banner: bool) -> Self {
+        self.display_banner = display_banner;
+        self
     }
 
     pub fn update(&self, line: &str) -> Result<(), Box<dyn Error>> {

@@ -1,6 +1,7 @@
 pub mod cc;
 pub mod day;
 pub mod line_stream;
+pub mod mapping;
 pub mod math;
 pub mod multi_range;
 pub mod ord;

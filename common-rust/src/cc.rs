@@ -24,6 +24,19 @@ impl TwoCC {
         let second = chars.next().unwrap_or('\0');
         Self::new(first, second)
     }
+    pub fn to_string_lax(self) -> String {
+        let mut s = String::with_capacity(4);
+        let first = self.first();
+        let second = self.second();
+        if first != '\0' || second != '\0' {
+            s.push(first);
+            if second != '\0' {
+                s.push(second);
+            }
+        }
+
+        s
+    }
 }
 
 impl From<&TwoCC> for u16 {
@@ -125,6 +138,23 @@ impl ThreeCC {
         let second = chars.next().unwrap_or('\0');
         let third = chars.next().unwrap_or('\0');
         Self::new(first, second, third)
+    }
+    pub fn to_string_lax(self) -> String {
+        let mut s = String::with_capacity(4);
+        let first = self.first();
+        let second = self.second();
+        let third = self.third();
+        if first != '\0' || second != '\0' || third != '\0' {
+            s.push(first);
+            if second != '\0' || third != '\0' {
+                s.push(second);
+                if third != '\0' {
+                    s.push(third);
+                }
+            }
+        }
+
+        s
     }
 }
 
@@ -245,6 +275,27 @@ impl FourCC {
         let third = chars.next().unwrap_or('\0');
         let fourth = chars.next().unwrap_or('\0');
         Self::new(first, second, third, fourth)
+    }
+    pub fn to_string_lax(self) -> String {
+        let mut s = String::with_capacity(4);
+        let first = self.first();
+        let second = self.second();
+        let third = self.third();
+        let fourth = self.fourth();
+        if first != '\0' || second != '\0' || third != '\0' || fourth != '\0' {
+            s.push(first);
+            if second != '\0' || third != '\0' || fourth != '\0' {
+                s.push(second);
+                if third != '\0' || fourth != '\0' {
+                    s.push(third);
+                    if fourth != '\0' {
+                        s.push(fourth);
+                    }
+                }
+            }
+        }
+
+        s
     }
 }
 

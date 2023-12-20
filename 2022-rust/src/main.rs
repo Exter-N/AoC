@@ -72,7 +72,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let day: Day = cli.command.try_into()?;
 
-    println!("--- Day {}: {} ---", day.number, day.title);
+    if day.display_banner {
+        eprintln!("--- Day {}: {} ---", day.number, day.title);
+    }
 
     let stdin = io::BufReader::new(io::stdin());
     for line in stdin.lines() {

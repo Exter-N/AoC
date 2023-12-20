@@ -23,6 +23,7 @@ mod day16;
 mod day17;
 mod day18;
 mod day19;
+mod day20;
 
 use aoc_common_rs::day::Day;
 use cli::{Cli, Commands};
@@ -51,6 +52,7 @@ impl TryFrom<Commands> for Day {
             Commands::Day17 { gold } => day17::new(gold),
             Commands::Day18 { gold } => day18::new(gold),
             Commands::Day19 { gold } => day19::new(gold),
+            Commands::Day20 { gold, export } => day20::new(gold, export),
         }
     }
 }
@@ -60,7 +62,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let day: Day = cli.command.try_into()?;
 
-    println!("--- Day {}: {} ---", day.number, day.title);
+    if day.display_banner {
+        eprintln!("--- Day {}: {} ---", day.number, day.title);
+    }
 
     let stdin = io::BufReader::new(io::stdin());
     for line in stdin.lines() {

@@ -72,4 +72,10 @@ pub enum Commands {
         #[arg(short, long)]
         gold: bool,
     },
+    Day20 {
+        #[arg(short, long)]
+        gold: bool,
+        #[arg(short = 'x', long)]
+        export: bool,
+    },
 }
