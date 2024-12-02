@@ -4,7 +4,7 @@ use std::{
     ops::Not,
 };
 
-use aoc_common_rs::{cc::TwoCC, mapping::Mapping, ord::insert_sorted, math::lcm};
+use aoc_common_rs::{cc::TwoCC, mapping::Mapping, math::lcm, ord::insert_sorted};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[repr(u8)]
@@ -176,7 +176,7 @@ impl Circuit {
                                     }
                                 }
                             }
-                        },
+                        }
                         _ => unreachable!(),
                     }
                     clone.trigger(from_index);
