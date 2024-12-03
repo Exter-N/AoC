@@ -6,6 +6,7 @@ use std::{error::Error, io::BufRead};
 mod cli;
 mod day01;
 mod day02;
+mod day03;
 
 use aoc_common_rs::day::Day;
 use cli::{Cli, Commands};
@@ -17,6 +18,7 @@ impl TryFrom<Commands> for Day {
         match value {
             Commands::Day01 { gold } => day01::new(gold),
             Commands::Day02 { gold } => day02::new(gold),
+            Commands::Day03 { gold } => day03::new(gold),
         }
     }
 }

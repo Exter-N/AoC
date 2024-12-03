@@ -17,4 +17,8 @@ pub enum Commands {
         #[arg(short, long)]
         gold: bool,
     },
+    Day03 {
+        #[arg(short, long)]
+        gold: bool,
+    },
 }

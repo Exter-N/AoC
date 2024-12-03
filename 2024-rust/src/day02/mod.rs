@@ -33,7 +33,7 @@ fn is_safe_parts(report1: &[i32], report2: &[i32]) -> bool {
         min_diff = min_diff.min(diff);
         max_diff = max_diff.max(diff);
         if (min_diff < -3 || max_diff > -1) && (min_diff < 1 || max_diff > 3) {
-            return false
+            return false;
         }
         last = *level;
     }
@@ -47,7 +47,7 @@ fn is_safe(report: &[i32], almost: bool) -> bool {
         if almost {
             for i in 0usize..report.len() {
                 if is_safe_parts(&report[..i], &report[(i + 1)..]) {
-                    return true
+                    return true;
                 }
             }
         }
@@ -57,13 +57,7 @@ fn is_safe(report: &[i32], almost: bool) -> bool {
 
 impl LineStreamHandler for Day2 {
     fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
-        let report = parse_full_string(
-            line,
-            separated_list1(
-                multispace1,
-                i32,
-            ),
-        )?;
+        let report = parse_full_string(line, separated_list1(multispace1, i32))?;
         if is_safe(&report, self.gold) {
             self.safe_reports += 1;
         }
@@ -73,11 +67,7 @@ impl LineStreamHandler for Day2 {
     fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         println!(
             "[{}] Safe report count: {}",
-            if self.gold {
-                GOLD_ANSI
-            } else {
-                SILVER_ANSI
-            },
+            if self.gold { GOLD_ANSI } else { SILVER_ANSI },
             self.safe_reports
         );
         Ok(())
