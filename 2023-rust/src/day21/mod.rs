@@ -48,7 +48,7 @@ impl Day21 {
                 match &mut self.terrain[pt] {
                     Tile::Garden(tile_distance, _) => {
                         *tile_distance = distance;
-                    },
+                    }
                     _ => unimplemented!(),
                 }
                 for dir in Direction2::all() {
@@ -89,7 +89,9 @@ impl LineStreamHandler for Day21 {
         let mut reachable = 0usize;
         for pt in self.terrain.points() {
             if let Tile::Garden(distance_from_start, _) = self.terrain[pt] {
-                if distance_from_start <= self.steps && (distance_from_start % 2) == (self.steps % 2) {
+                if distance_from_start <= self.steps
+                    && (distance_from_start % 2) == (self.steps % 2)
+                {
                     reachable += 1;
                 }
             }

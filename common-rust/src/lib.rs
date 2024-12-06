@@ -1,3 +1,4 @@
+pub mod bit_matrix;
 pub mod cc;
 pub mod day;
 pub mod line_stream;

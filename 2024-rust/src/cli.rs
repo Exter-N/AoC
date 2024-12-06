@@ -22,4 +22,6 @@ pub enum Commands {
         gold: bool,
     },
     Day04,
+    Day05,
+    Day06,
 }
