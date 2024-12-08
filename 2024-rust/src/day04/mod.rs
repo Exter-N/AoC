@@ -181,7 +181,7 @@ impl LineStreamHandler for Day4 {
         if self.window[self.next_index].is_some() {
             self.crosses += count_crosses(&self.window, self.next_index);
         }
-        println!("[{}] Number of XMAS: {}", SILVER_ANSI, self.occurrences);
+        println!("[{}] Number of XMAS:  {}", SILVER_ANSI, self.occurrences);
         println!("[{}] Number of X-MAS: {}", GOLD_ANSI, self.crosses);
         Ok(())
     }

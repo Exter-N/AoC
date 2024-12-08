@@ -1,7 +1,7 @@
 use std::cmp::{max, min, Ordering};
 use std::error::Error;
 use std::hash::Hash;
-use std::ops::{Add, AddAssign, Index, IndexMut, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use num_traits::identities::{one, zero};
 use num_traits::ops::overflowing::{OverflowingAdd, OverflowingSub};
@@ -97,6 +97,10 @@ where
             Direction2::Left => self.with_x(self.0 - distance),
             Direction2::Up => self.with_y(self.1 - distance),
         }
+    }
+
+    pub fn point_reflect(self, center: Self) -> Self {
+        Self(center.0 + center.0 - self.0, center.1 + center.1 - self.1)
     }
 }
 
@@ -286,6 +290,29 @@ where
     }
 }
 
+impl<T, U> Mul<U> for Point2<T>
+where
+    T: Mul<U>,
+    U: Copy,
+{
+    type Output = Point2<<T as Mul<U>>::Output>;
+
+    fn mul(self, rhs: U) -> Self::Output {
+        Point2(self.0 * rhs, self.1 * rhs)
+    }
+}
+
+impl<T, U> MulAssign<U> for Point2<T>
+where
+    T: MulAssign<U>,
+    U: Copy,
+{
+    fn mul_assign(&mut self, rhs: U) {
+        self.0 *= rhs;
+        self.1 *= rhs;
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Point3<T>(pub T, pub T, pub T);
 
@@ -406,6 +433,14 @@ where
             Direction3::Up => self.with_y(self.1 - distance),
             Direction3::Front => self.with_z(self.2 - distance),
         }
+    }
+
+    pub fn point_reflect(self, center: Self) -> Self {
+        Self(
+            center.0 + center.0 - self.0,
+            center.1 + center.1 - self.1,
+            center.2 + center.2 - self.2,
+        )
     }
 }
 
