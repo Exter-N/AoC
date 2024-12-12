@@ -1,4 +1,8 @@
-use std::ops::{Deref, DerefMut, Index, IndexMut};
+use std::{
+    collections::HashSet,
+    mem::replace,
+    ops::{Deref, DerefMut, Index, IndexMut},
+};
 
 use itertools::Itertools;
 
@@ -67,6 +71,18 @@ impl<T> Terrain<T> {
             .rev()
             .cartesian_product((0..self.width).rev())
             .map(|(i, j)| Point2(j, i))
+    }
+    pub fn neighbor(&self, pt: Point2<usize>, towards: Direction2) -> Option<Point2<usize>> {
+        if match towards {
+            Direction2::Right => pt.0 + 1 < self.width,
+            Direction2::Down => pt.1 + 1 < self.height,
+            Direction2::Left => pt.0 >= 1,
+            Direction2::Up => pt.1 >= 1,
+        } {
+            Some(pt.next_towards(towards))
+        } else {
+            None
+        }
     }
     pub fn neighbors(
         &self,
@@ -188,6 +204,60 @@ impl<T> Terrain<T> {
                 }
                 Point2(from.0, ty)
             }
+        }
+    }
+    pub fn flood_fill_mut(
+        &mut self,
+        from: Point2<usize>,
+        mut predicate: impl FnMut(&Self, usize, Point2<usize>, Direction2, Point2<usize>) -> bool,
+        mut action: impl FnMut(&mut Self, usize, Point2<usize>),
+    ) {
+        let mut visited = HashSet::new();
+        let mut level = 0usize;
+        let mut next = HashSet::new();
+        next.insert(from);
+        while !next.is_empty() {
+            for pt in replace(&mut next, HashSet::new()) {
+                visited.insert(pt);
+                action(self, level, pt);
+                for (direction, neighbor) in self.neighbors(pt) {
+                    if visited.contains(&neighbor) || next.contains(&neighbor) {
+                        continue;
+                    }
+
+                    if predicate(&self, level, pt, direction, neighbor) {
+                        next.insert(neighbor);
+                    }
+                }
+            }
+            level += 1;
+        }
+    }
+    pub fn flood_fill(
+        &self,
+        from: Point2<usize>,
+        mut predicate: impl FnMut(&Self, usize, Point2<usize>, Direction2, Point2<usize>) -> bool,
+        mut action: impl FnMut(&Self, usize, Point2<usize>),
+    ) {
+        let mut visited = HashSet::new();
+        let mut level = 0usize;
+        let mut next = HashSet::new();
+        next.insert(from);
+        while !next.is_empty() {
+            for pt in replace(&mut next, HashSet::new()) {
+                visited.insert(pt);
+                action(self, level, pt);
+                for (direction, neighbor) in self.neighbors(pt) {
+                    if visited.contains(&neighbor) || next.contains(&neighbor) {
+                        continue;
+                    }
+
+                    if predicate(self, level, pt, direction, neighbor) {
+                        next.insert(neighbor);
+                    }
+                }
+            }
+            level += 1;
         }
     }
 }

@@ -38,4 +38,5 @@ pub enum Commands {
     },
     Day10,
     Day11,
+    Day12,
 }
