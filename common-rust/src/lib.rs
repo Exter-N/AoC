@@ -4,6 +4,7 @@ pub mod day;
 pub mod line_stream;
 pub mod mapping;
 pub mod math;
+pub mod mem;
 pub mod multi_range;
 pub mod ord;
 pub mod point;
