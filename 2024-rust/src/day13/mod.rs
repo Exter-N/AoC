@@ -1,11 +1,12 @@
-use std::{error::Error, fmt::Display};
+use std::error::Error;
 
 use aoc_common_rs::{
-    day::Day,
+    day::{Day, GOLD_ANSI, SILVER_ANSI},
     line_stream::{parse_full_string, LineStreamHandler},
-    math::{solve_linear_diophantine, LinearDiophantineSolution},
+    math::diophantine::LinearBivariateDiophantineEquation,
     mem::take_all3,
 };
+use itertools::Either;
 use nom::{
     branch::alt,
     bytes::complete::tag,
@@ -25,32 +26,18 @@ struct Day13 {
     button_a: Option<(i64, i64)>,
     button_b: Option<(i64, i64)>,
     prize: Option<(i64, i64)>,
-}
-
-fn print_dioph_sol<T: Display>(a: T, b: T, c: T, sol: LinearDiophantineSolution<T>) {
-    println!(
-        "{} = {} * ({} + {}k) + {} * ({} + {}k)",
-        c, a, sol.x, sol.x_step, b, sol.y, sol.y_step
-    );
-}
-
-fn solve_print_dioph(a: i64, b: i64, c: i64) {
-    match solve_linear_diophantine(a, b, c) {
-        Some(sol) => {
-            print_dioph_sol(a, b, c, sol);
-        }
-        None => {
-            println!("{} = {} * ??? + {} * ???", c, a, b);
-        }
-    }
+    prize_offset: i64,
+    total_tokens: i64,
 }
 
 impl Day13 {
-    fn new() -> Self {
+    fn new(gold: bool) -> Self {
         Self {
             button_a: None,
             button_b: None,
             prize: None,
+            prize_offset: if gold { 10_000_000_000_000 } else { 0 },
+            total_tokens: 0,
         }
     }
 
@@ -62,27 +49,33 @@ impl Day13 {
                     return;
                 }
             };
-        let xds = match solve_linear_diophantine(button_a.0, button_b.0, prize.0) {
+
+        let xde = LinearBivariateDiophantineEquation {
+            a: button_a.0,
+            b: button_b.0,
+            c: prize.0 + self.prize_offset,
+        };
+        let yde = LinearBivariateDiophantineEquation {
+            a: button_a.1,
+            b: button_b.1,
+            c: prize.1 + self.prize_offset,
+        };
+
+        let solution = match xde.solve_with(&yde) {
             Some(s) => s,
             None => {
                 return;
             }
         };
-        let yds = match solve_linear_diophantine(button_a.1, button_b.1, prize.1) {
-            Some(s) => s,
-            None => {
-                return;
+
+        if let Either::Left(sol) = solution {
+            if sol.0 >= 0 && sol.1 >= 0 {
+                self.total_tokens += sol.0 * 3 + sol.1;
             }
-        };
-        println!("A:     {:?}", button_a);
-        println!("B:     {:?}", button_b);
-        println!("Prize: {:?}", prize);
+            return;
+        }
 
-        print_dioph_sol(button_a.0, button_b.0, prize.0, xds);
-        print_dioph_sol(button_a.1, button_b.1, prize.1, yds);
-
-        solve_print_dioph(xds.x_step, -yds.x_step, yds.x - xds.x);
-        solve_print_dioph(xds.y_step, -yds.y_step, yds.y - xds.y);
+        todo!()
     }
 }
 
@@ -123,11 +116,21 @@ impl LineStreamHandler for Day13 {
         Ok(())
     }
 
-    fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
-        todo!()
+    fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
+        self.process();
+        println!(
+            "[{}] Fewest tokens: {}",
+            if self.prize_offset != 0 {
+                GOLD_ANSI
+            } else {
+                SILVER_ANSI
+            },
+            self.total_tokens
+        );
+        Ok(())
     }
 }
 
-pub fn new() -> Result<Day, Box<dyn Error>> {
-    Ok(Day::new(13, "Claw Contraption", Day13::new()))
+pub fn new(gold: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(13, "Claw Contraption", Day13::new(gold)))
 }

@@ -39,5 +39,15 @@ pub enum Commands {
     Day10,
     Day11,
     Day12,
-    Day13,
+    Day13 {
+        #[arg(short, long)]
+        gold: bool,
+    },
+    Day14,
+    Day15 {
+        #[arg(short, long)]
+        gold: bool,
+        #[arg(short, long)]
+        verbose: bool,
+    },
 }

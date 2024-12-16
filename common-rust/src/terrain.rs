@@ -1,5 +1,6 @@
 use std::{
     collections::HashSet,
+    fmt::{Display, Formatter, Result as FmtResult, Write},
     mem::replace,
     ops::{Deref, DerefMut, Index, IndexMut},
 };
@@ -297,5 +298,25 @@ impl<T> Index<Point2<usize>> for Terrain<T> {
 impl<T> IndexMut<Point2<usize>> for Terrain<T> {
     fn index_mut(&mut self, index: Point2<usize>) -> &mut Self::Output {
         &mut self.terrain[index.1][index.0]
+    }
+}
+
+impl<T> Display for Terrain<T>
+where
+    T: Display,
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        let mut first = true;
+        for row in &self.terrain {
+            if first {
+                first = false;
+            } else {
+                f.write_char('\n')?;
+            }
+            for cell in row {
+                cell.fmt(f)?;
+            }
+        }
+        Ok(())
     }
 }
