@@ -54,4 +54,8 @@ pub enum Commands {
         #[arg(short, long)]
         verbose: bool,
     },
+    Day17 {
+        #[arg(short, long)]
+        gold: bool,
+    },
 }
