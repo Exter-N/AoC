@@ -1,5 +1,6 @@
 use std::cmp::{max, min, Ordering};
 use std::error::Error;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::hash::Hash;
 use std::ops::{Add, AddAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign};
 
@@ -310,6 +311,15 @@ where
     fn mul_assign(&mut self, rhs: U) {
         self.0 *= rhs;
         self.1 *= rhs;
+    }
+}
+
+impl<T> Display for Point2<T>
+where
+    T: Display,
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(f, "({}, {})", self.0, self.1)
     }
 }
 
@@ -669,6 +679,15 @@ where
         self.0 -= rhs.0;
         self.1 -= rhs.1;
         self.2 -= rhs.2;
+    }
+}
+
+impl<T> Display for Point3<T>
+where
+    T: Display,
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(f, "({}, {}, {})", self.0, self.1, self.2)
     }
 }
 
