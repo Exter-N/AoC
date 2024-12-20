@@ -43,7 +43,10 @@ pub enum Commands {
         #[arg(short, long)]
         gold: bool,
     },
-    Day14,
+    Day14 {
+        #[arg(short, long)]
+        frame: Option<i64>,
+    },
     Day15 {
         #[arg(short, long)]
         gold: bool,

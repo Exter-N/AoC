@@ -46,7 +46,7 @@ impl TryFrom<Commands> for Day {
             Commands::Day11 => day11::new(),
             Commands::Day12 => day12::new(),
             Commands::Day13 { gold } => day13::new(gold),
-            Commands::Day14 => day14::new(),
+            Commands::Day14 { frame } => day14::new(frame),
             Commands::Day15 { gold, verbose } => day15::new(gold, verbose),
             Commands::Day16 { verbose } => day16::new(verbose),
             Commands::Day17 { gold } => day17::new(gold),
