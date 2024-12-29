@@ -18,6 +18,10 @@ impl TwoCC {
     pub const fn second(self) -> char {
         (self.0 & 255) as u8 as char
     }
+    #[inline(always)]
+    pub const fn contains(self, ch: char) -> bool {
+        self.first() == ch || self.second() == ch
+    }
     pub fn from_lax(value: &str) -> Self {
         let mut chars = value.chars();
         let first = chars.next().unwrap_or('\0');
@@ -131,6 +135,10 @@ impl ThreeCC {
     #[inline(always)]
     pub const fn third(self) -> char {
         self.2 as char
+    }
+    #[inline(always)]
+    pub const fn contains(self, ch: char) -> bool {
+        self.first() == ch || self.second() == ch || self.third() == ch
     }
     pub fn from_lax(value: &str) -> Self {
         let mut chars = value.chars();
@@ -267,6 +275,10 @@ impl FourCC {
     #[inline(always)]
     pub const fn fourth(self) -> char {
         (self.0 & 255) as u8 as char
+    }
+    #[inline(always)]
+    pub const fn contains(self, ch: char) -> bool {
+        self.first() == ch || self.second() == ch || self.third() == ch || self.fourth() == ch
     }
     pub fn from_lax(value: &str) -> Self {
         let mut chars = value.chars();

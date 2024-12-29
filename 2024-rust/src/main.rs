@@ -24,6 +24,11 @@ mod day17;
 mod day18;
 mod day19;
 mod day20;
+mod day21;
+mod day22;
+mod day23;
+mod day24;
+mod day25;
 
 use aoc_common_rs::day::Day;
 use cli::{Cli, Commands};
@@ -53,6 +58,11 @@ impl TryFrom<Commands> for Day {
             Commands::Day18 { sample, gold } => day18::new(sample, gold),
             Commands::Day19 => day19::new(),
             Commands::Day20 { gold } => day20::new(gold),
+            Commands::Day21 { gold } => day21::new(gold),
+            Commands::Day22 => day22::new(),
+            Commands::Day23 => day23::new(),
+            Commands::Day24 => day24::new(),
+            Commands::Day25 => day25::new(),
         }
     }
 }

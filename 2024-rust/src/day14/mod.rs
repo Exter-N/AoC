@@ -5,7 +5,11 @@ use std::{
 };
 
 use aoc_common_rs::{
-    day::{Day, SILVER_ANSI}, line_stream::{parse_full_string, LineStreamHandler}, math::lcm, point::Point2, terrain::Terrain
+    day::{Day, SILVER_ANSI},
+    line_stream::{parse_full_string, LineStreamHandler},
+    math::lcm,
+    point::Point2,
+    terrain::Terrain,
 };
 
 use nom::{
@@ -124,7 +128,11 @@ impl LineStreamHandler for Day14 {
     fn finish(mut self: Box<Self>) -> Result<(), Box<dyn Error>> {
         if let Some(display_frame) = self.display_frame {
             let size = self.terrain_size();
-            println!("[-] Displaying frame {} of {}", display_frame, lcm(size.0, size.1));
+            println!(
+                "[-] Displaying frame {} of {}",
+                display_frame,
+                lcm(size.0, size.1)
+            );
             let mut display_clone = (*self).clone();
             display_clone.step_all(display_frame);
             println!("{}", display_clone.compute_histogram());
