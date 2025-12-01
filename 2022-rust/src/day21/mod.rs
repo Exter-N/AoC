@@ -5,7 +5,7 @@ use nom::bytes::complete::tag;
 use nom::character::complete::{anychar, char, i64};
 use nom::combinator::map;
 use nom::error::Error as NomError;
-use nom::sequence::{separated_pair, tuple};
+use nom::sequence::separated_pair;
 
 use aoc_common_rs::{
     cc::FourCC,
@@ -36,7 +36,7 @@ impl LineStreamHandler for Day21 {
     fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let four_cc = move || {
             map(
-                tuple((anychar::<&str, NomError<&str>>, anychar, anychar, anychar)),
+                (anychar::<&str, NomError<&str>>, anychar, anychar, anychar),
                 FourCC::from,
             )
         };
@@ -48,13 +48,13 @@ impl LineStreamHandler for Day21 {
                 alt((
                     map(i64, |num| Operation::Const(num)),
                     map(
-                        tuple((
+                        (
                             four_cc(),
                             char(' '),
                             alt((char('+'), char('-'), char('*'), char('/'))),
                             char(' '),
                             four_cc(),
-                        )),
+                        ),
                         |(monkey1, _, op, _, monkey2)| match op {
                             '+' => Operation::Add(monkey1, monkey2),
                             '-' => Operation::Sub(monkey1, monkey2),

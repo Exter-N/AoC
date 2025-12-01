@@ -3,7 +3,6 @@ use std::error::Error;
 
 use nom::character::complete::{char, i16};
 use nom::combinator::map;
-use nom::sequence::tuple;
 
 use aoc_common_rs::{
     day::{Day, GOLD_ANSI, SILVER_ANSI},
@@ -78,10 +77,9 @@ impl LineStreamHandler for Day18 {
     fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
         let pt = parse_full_string(
             line,
-            map(
-                tuple((i16, char(','), i16, char(','), i16)),
-                |(x, _, y, _, z)| Point3(x, y, z),
-            ),
+            map((i16, char(','), i16, char(','), i16), |(x, _, y, _, z)| {
+                Point3(x, y, z)
+            }),
         )?;
         self.model.insert(pt);
         if let Some(min) = self.min {

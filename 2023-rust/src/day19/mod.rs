@@ -15,7 +15,7 @@ use nom::{
     character::complete::{alpha1, char, one_of, u16},
     combinator::{map_res, opt, value},
     multi::fold_many1,
-    sequence::{delimited, pair, separated_pair, terminated, tuple},
+    sequence::{delimited, pair, separated_pair, terminated},
 };
 
 #[derive(Clone, Copy)]
@@ -308,14 +308,14 @@ impl LineStreamHandlerOnce for Day19Workflows {
                         terminated(
                             pair(
                                 opt(terminated(
-                                    tuple((
+                                    (
                                         map_res(one_of("xmas"), PartRating::try_from),
                                         alt((
                                             value(Ordering::Less, char('<')),
                                             value(Ordering::Greater, char('>')),
                                         )),
                                         u16,
-                                    )),
+                                    ),
                                     char(':'),
                                 )),
                                 map_res(alpha1, Action::try_from),

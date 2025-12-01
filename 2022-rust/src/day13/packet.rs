@@ -9,7 +9,7 @@ use nom::combinator::map;
 use nom::error::ParseError;
 use nom::multi::separated_list0;
 use nom::sequence::delimited;
-use nom::IResult;
+use nom::{IResult, Parser};
 
 #[derive(Clone, Debug)]
 pub enum Packet {
@@ -79,7 +79,8 @@ pub fn packet<'a, E: ParseError<&'a str>>(s: &'a str) -> IResult<&'a str, Packet
             |list| Packet::List(Rc::new(list)),
         ),
         map(u32, |num| Packet::Integer(num)),
-    ))(s)
+    ))
+    .parse(s)
 }
 
 pub fn divider(code: u32) -> Packet {

@@ -5,13 +5,13 @@ use nom::bytes::complete::take;
 use nom::combinator::{eof, map_res};
 use nom::error::{FromExternalError, ParseError};
 use nom::sequence::terminated;
-use nom::{Finish, IResult, Parser};
+use nom::{Finish, Parser};
 
-pub fn parse_full_string<'a, O, F>(s: &'a str, f: F) -> Result<O, nom::error::Error<usize>>
+pub fn parse_full_string<'a, F>(s: &'a str, f: F) -> Result<<F as Parser<&'a str>>::Output, nom::error::Error<usize>>
 where
-    F: Parser<&'a str, O, nom::error::Error<&'a str>>,
+    F: Parser<&'a str, Error = nom::error::Error<&'a str>>,
 {
-    match terminated(f, eof)(s).finish() {
+    match terminated(f, eof).parse(s).finish() {
         Ok((_, result)) => Ok(result),
         Err(error) => Err(nom::error::Error::new(
             (error.input.as_ptr() as usize) - (s.as_ptr() as usize),
@@ -20,7 +20,7 @@ where
     }
 }
 
-pub fn take_fixed<'a, const N: usize, E>() -> impl FnMut(&'a str) -> IResult<&'a str, [u8; N], E>
+pub fn take_fixed<'a, const N: usize, E>() -> impl Parser<&'a str, Output = [u8; N], Error = E>
 where
     E: ParseError<&'a str> + FromExternalError<&'a str, TryFromSliceError>,
 {

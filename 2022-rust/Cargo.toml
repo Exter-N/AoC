@@ -9,7 +9,7 @@ edition = "2021"
 aoc-common-rs = { path = "../common-rust" }
 clap = { version = "4.0.29", features = ["derive"] }
 either = "1.8.0"
-itertools = "0.10.5"
+itertools = "0.14.0"
 lazy_static = "1.4.0"
-nom = "7.1.1"
+nom = "8.0.0"
 num-traits = "0.2.15"

@@ -11,7 +11,7 @@ use nom::{
     character::complete::{anychar, char},
     combinator::map,
     error::Error as NomError,
-    sequence::{separated_pair, tuple},
+    sequence::separated_pair,
 };
 
 mod circuit;
@@ -39,7 +39,7 @@ impl LineStreamHandler for Day24 {
 
         let three_cc = move || {
             map(
-                tuple((anychar::<&str, NomError<&str>>, anychar, anychar)),
+                (anychar::<&str, NomError<&str>>, anychar, anychar),
                 ThreeCC::from,
             )
         };

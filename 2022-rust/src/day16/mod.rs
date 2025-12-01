@@ -5,7 +5,7 @@ use nom::character::complete::{anychar, char, u32};
 use nom::combinator::{map, opt};
 use nom::error::Error as NomError;
 use nom::multi::separated_list1;
-use nom::sequence::{pair, preceded, separated_pair, tuple};
+use nom::sequence::{pair, preceded, separated_pair};
 
 use aoc_common_rs::{
     cc::TwoCC,
@@ -44,7 +44,7 @@ impl LineStreamHandler for Day16 {
                     map(
                         separated_pair(
                             u32,
-                            tuple((
+                            (
                                 tag("; tunnel"),
                                 opt(char('s')),
                                 tag(" lead"),
@@ -52,7 +52,7 @@ impl LineStreamHandler for Day16 {
                                 tag(" to valve"),
                                 opt(char('s')),
                                 char(' '),
-                            )),
+                            ),
                             map(separated_list1(tag(", "), two_cc()), |neighbors_v| {
                                 let mut neighbors: ProximityMap<TwoCC, u16> = ProximityMap::new();
                                 for neighbor in neighbors_v {

@@ -3,7 +3,7 @@ use std::error::Error;
 use nom::bytes::complete::tag;
 use nom::character::complete::{anychar, u32};
 use nom::multi::separated_list1;
-use nom::sequence::{delimited, preceded, tuple};
+use nom::sequence::{delimited, preceded};
 
 use aoc_common_rs::{
     day::{Day, GOLD_ANSI, SILVER_ANSI},
@@ -49,11 +49,11 @@ impl LineStreamHandlerOnce for Day5Moves {
     ) -> Result<Box<dyn LineStreamHandlerOnce>, Box<dyn Error>> {
         let (num, from, to) = parse_full_string(
             line,
-            tuple((
+            (
                 preceded(tag("move "), u32),
                 preceded(tag(" from "), u32),
                 preceded(tag(" to "), u32),
-            )),
+            ),
         )?;
         self.0
             .move_top(num as usize, from as usize - 1, to as usize - 1)?;

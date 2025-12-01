@@ -3,7 +3,7 @@ use std::{cmp::Ordering, error::Error};
 use nom::{
     character::complete::{char, one_of, u32},
     combinator::{map, map_res},
-    sequence::{separated_pair, tuple},
+    sequence::separated_pair,
 };
 
 use aoc_common_rs::{
@@ -340,7 +340,7 @@ impl LineStreamHandler for Day7 {
             line,
             separated_pair(
                 map(
-                    tuple((
+                    (
                         map_res(one_of("23456789AJKQT"), |card| {
                             Card::try_from(card).map(|card| card.jokerize(self.gold))
                         }),
@@ -356,7 +356,7 @@ impl LineStreamHandler for Day7 {
                         map_res(one_of("23456789AJKQT"), |card| {
                             Card::try_from(card).map(|card| card.jokerize(self.gold))
                         }),
-                    )),
+                    ),
                     |(first, second, third, fourth, fifth)| {
                         Hand::new(first, second, third, fourth, fifth)
                     },
