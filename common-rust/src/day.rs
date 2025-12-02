@@ -1,4 +1,4 @@
-use std::{cell::RefCell, error::Error};
+use std::{cell::RefCell, error::Error, io::{self, BufRead}, time::Instant};
 
 use crate::line_stream::{wrap_once, LineStreamHandler, LineStreamHandlerOnce};
 
@@ -44,4 +44,23 @@ impl Day {
     pub fn finish(self) -> Result<(), Box<dyn Error>> {
         self.handler.into_inner().finish()
     }
+}
+
+pub fn run(day: Day, timed: bool) -> Result<(), Box<dyn Error>> {
+    if day.display_banner {
+        eprintln!("--- Day {}: {} ---", day.number, day.title);
+    }
+
+    let start_time = Instant::now();
+    let stdin = io::BufReader::new(io::stdin());
+    for line in stdin.lines() {
+        day.update(line?.as_str())?;
+    }
+
+    let result = day.finish();
+    if timed {
+        eprintln!("--- Time: {:?} ---", start_time.elapsed());
+    }
+
+    result
 }

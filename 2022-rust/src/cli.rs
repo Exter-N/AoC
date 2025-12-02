@@ -3,6 +3,8 @@ use clap::{ArgAction, Parser, Subcommand};
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
+    #[arg(short, long)]
+    pub timed: bool,
     #[command(subcommand)]
     pub command: Commands,
 }

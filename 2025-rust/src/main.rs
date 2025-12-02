@@ -1,13 +1,12 @@
 use clap::Parser;
 
-use std::io;
-use std::{error::Error, io::BufRead};
+use std::error::Error;
 
 mod cli;
 mod day01;
 mod day02;
 
-use aoc_common_rs::day::Day;
+use aoc_common_rs::day::{Day, run};
 use cli::{Cli, Commands};
 
 impl TryFrom<Commands> for Day {
@@ -34,16 +33,5 @@ impl TryFrom<Commands> for Day {
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
 
-    let day: Day = cli.command.try_into()?;
-
-    if day.display_banner {
-        eprintln!("--- Day {}: {} ---", day.number, day.title);
-    }
-
-    let stdin = io::BufReader::new(io::stdin());
-    for line in stdin.lines() {
-        day.update(line?.as_str())?;
-    }
-
-    day.finish()
+    run(cli.command.try_into()?, cli.timed)
 }
