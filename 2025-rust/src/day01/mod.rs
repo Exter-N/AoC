@@ -6,7 +6,6 @@ use aoc_common_rs::{day::Day, line_stream::LineStreamHandler};
 use nom::character::complete::u32;
 use nom::character::one_of;
 use nom::combinator::map;
-use nom::error::Error as NomError;
 use nom::sequence::pair;
 
 #[derive(Clone, Copy, Debug)]
@@ -70,23 +69,19 @@ impl Day1 {
     }
 }
 
-fn parse_line(line: &str) -> Result<(Direction, u32), NomError<usize>> {
-    parse_full_string(
-        line,
-        pair(
-            map(one_of("LR"), |ch| match ch {
-                'L' => Direction::Left,
-                'R' => Direction::Right,
-                _ => unreachable!(),
-            }),
-            u32,
-        ),
-    )
-}
-
 impl LineStreamHandler for Day1 {
     fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
-        let (direction, amount) = parse_line(line)?;
+        let (direction, amount) = parse_full_string(
+            line,
+            pair(
+                map(one_of("LR"), |ch| match ch {
+                    'L' => Direction::Left,
+                    'R' => Direction::Right,
+                    _ => unreachable!(),
+                }),
+                u32,
+            ),
+        )?;
         self.rotate(direction, amount);
         println!(
             "{:?}{} {:>3} -> {:>2} ({:>5})",

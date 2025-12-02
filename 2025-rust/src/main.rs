@@ -5,6 +5,7 @@ use std::{error::Error, io::BufRead};
 
 mod cli;
 mod day01;
+mod day02;
 
 use aoc_common_rs::day::Day;
 use cli::{Cli, Commands};
@@ -15,7 +16,7 @@ impl TryFrom<Commands> for Day {
     fn try_from(value: Commands) -> Result<Self, Self::Error> {
         match value {
             Commands::Day01 { gold } => day01::new(gold),
-            Commands::Day02 => unimplemented!(),
+            Commands::Day02 { gold } => day02::new(gold),
             Commands::Day03 => unimplemented!(),
             Commands::Day04 => unimplemented!(),
             Commands::Day05 => unimplemented!(),

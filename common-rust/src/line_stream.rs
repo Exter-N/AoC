@@ -7,7 +7,10 @@ use nom::error::{FromExternalError, ParseError};
 use nom::sequence::terminated;
 use nom::{Finish, Parser};
 
-pub fn parse_full_string<'a, F>(s: &'a str, f: F) -> Result<<F as Parser<&'a str>>::Output, nom::error::Error<usize>>
+pub fn parse_full_string<'a, F>(
+    s: &'a str,
+    f: F,
+) -> Result<<F as Parser<&'a str>>::Output, nom::error::Error<usize>>
 where
     F: Parser<&'a str, Error = nom::error::Error<&'a str>>,
 {

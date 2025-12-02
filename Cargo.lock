@@ -103,6 +103,7 @@ version = "0.1.0"
 dependencies = [
  "aoc-common-rs",
  "clap",
+ "ilog",
  "itertools",
  "nom",
 ]
@@ -170,6 +171,12 @@ name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
+
+[[package]]
+name = "ilog"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9d6896d5a5d605a3b80da159ccc5a6e1fad346b4d2c1ad51046e22536b9a362"
 
 [[package]]
 name = "is_terminal_polyfill"
