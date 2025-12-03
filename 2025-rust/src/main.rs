@@ -5,6 +5,7 @@ use std::error::Error;
 mod cli;
 mod day01;
 mod day02;
+mod day03;
 
 use aoc_common_rs::day::{Day, run};
 use cli::{Cli, Commands};
@@ -16,7 +17,7 @@ impl TryFrom<Commands> for Day {
         match value {
             Commands::Day01 { gold } => day01::new(gold),
             Commands::Day02 { gold } => day02::new(gold),
-            Commands::Day03 => unimplemented!(),
+            Commands::Day03 { gold } => day03::new(gold),
             Commands::Day04 => unimplemented!(),
             Commands::Day05 => unimplemented!(),
             Commands::Day06 => unimplemented!(),
