@@ -52,8 +52,8 @@ struct Day2 {
 }
 
 impl Day2 {
-    fn new(gold: bool) -> Day2 {
-        Day2 {
+    fn new(gold: bool) -> Self {
+        Self {
             gold,
             invalids: HashSet::new(),
         }
@@ -94,7 +94,8 @@ impl LineStreamHandler for Day2 {
         println!("[-] Number of invalid IDs: {}", self.invalids.len());
         println!(
             "[{}] Sum of invalid IDs:    {}",
-            SILVER_ANSI, self.invalids.into_iter().sum::<u64>()
+            SILVER_ANSI,
+            self.invalids.into_iter().sum::<u64>()
         );
         Ok(())
     }

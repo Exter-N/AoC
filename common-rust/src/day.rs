@@ -1,4 +1,9 @@
-use std::{cell::RefCell, error::Error, io::{self, BufRead}, time::Instant};
+use std::{
+    cell::RefCell,
+    error::Error,
+    io::{self, BufRead},
+    time::Instant,
+};
 
 use crate::line_stream::{wrap_once, LineStreamHandler, LineStreamHandlerOnce};
 

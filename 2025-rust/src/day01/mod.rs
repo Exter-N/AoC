@@ -21,8 +21,8 @@ struct Day1 {
 }
 
 impl Day1 {
-    fn new(gold: bool) -> Day1 {
-        Day1 {
+    fn new(gold: bool) -> Self {
+        Self {
             position: 50,
             zeros: 0,
             count_all_zeros: gold,
