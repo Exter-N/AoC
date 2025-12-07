@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::fmt::{Display, Write};
 
 use aoc_common_rs::day::{GOLD_ANSI, SILVER_ANSI};
 use aoc_common_rs::line_stream::parse_full_string;
@@ -14,18 +15,29 @@ enum Direction {
     Right,
 }
 
+impl Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_char(match self {
+            Direction::Left => 'L',
+            Direction::Right => 'R',
+        })
+    }
+}
+
 struct Day1 {
     position: u32,
     zeros: u32,
     count_all_zeros: bool,
+    verbose: bool,
 }
 
 impl Day1 {
-    fn new(gold: bool) -> Self {
+    fn new(gold: bool, verbose: bool) -> Self {
         Self {
             position: 50,
             zeros: 0,
             count_all_zeros: gold,
+            verbose,
         }
     }
 
@@ -82,24 +94,21 @@ impl LineStreamHandler for Day1 {
                 u32,
             ),
         )?;
+        let old_position = self.position;
         self.rotate(direction, amount);
-        println!(
-            "{:?}{} {:>3} -> {:>2} ({:>5})",
-            direction,
-            if matches!(direction, Direction::Left) {
-                " "
-            } else {
-                ""
-            },
-            amount,
-            self.position,
-            self.zeros
-        );
+        if self.verbose {
+            println!(
+                "[-] {}{:>3}: {:>2} -> {:>2} ({:>5})",
+                direction, amount, old_position, self.position, self.zeros
+            );
+        }
         Ok(())
     }
 
     fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
-        println!("[-] Final position: {}", self.position);
+        if !self.verbose {
+            println!("[-] Final position: {}", self.position);
+        }
         println!(
             "[{}] Password:       {}",
             if self.count_all_zeros {
@@ -113,6 +122,6 @@ impl LineStreamHandler for Day1 {
     }
 }
 
-pub fn new(gold: bool) -> Result<Day, Box<dyn Error>> {
-    Ok(Day::new(1, "Secret Entrance", Day1::new(gold)))
+pub fn new(gold: bool, verbose: bool) -> Result<Day, Box<dyn Error>> {
+    Ok(Day::new(1, "Secret Entrance", Day1::new(gold, verbose)))
 }

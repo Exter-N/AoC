@@ -18,7 +18,7 @@ impl TryFrom<Commands> for Day {
 
     fn try_from(value: Commands) -> Result<Self, Self::Error> {
         match value {
-            Commands::Day01 { gold } => day01::new(gold),
+            Commands::Day01 { gold, verbose } => day01::new(gold, verbose),
             Commands::Day02 { gold } => day02::new(gold),
             Commands::Day03 { gold } => day03::new(gold),
             Commands::Day04 { verbose } => day04::new(verbose),
