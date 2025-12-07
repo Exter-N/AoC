@@ -9,6 +9,7 @@ mod day03;
 mod day04;
 mod day05;
 mod day06;
+mod day07;
 
 use aoc_common_rs::day::{Day, run};
 use cli::{Cli, Commands};
@@ -24,7 +25,7 @@ impl TryFrom<Commands> for Day {
             Commands::Day04 { verbose } => day04::new(verbose),
             Commands::Day05 => day05::new(),
             Commands::Day06 { gold } => day06::new(gold),
-            Commands::Day07 => unimplemented!(),
+            Commands::Day07 => day07::new(),
             Commands::Day08 => unimplemented!(),
             Commands::Day09 => unimplemented!(),
             Commands::Day10 => unimplemented!(),
