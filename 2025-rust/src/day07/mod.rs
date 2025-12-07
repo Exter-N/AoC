@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error, usize};
+use std::{error::Error, usize};
 
 use aoc_common_rs::{
     day::{Day, GOLD_ANSI, SILVER_ANSI},
@@ -7,14 +7,14 @@ use aoc_common_rs::{
 
 #[derive(Debug)]
 struct Day7 {
-    beams: HashMap<usize, usize>,
+    beams: Vec<usize>,
     splits: usize,
 }
 
 impl Day7 {
     fn new() -> Self {
         Self {
-            beams: HashMap::new(),
+            beams: Vec::new(),
             splits: 0,
         }
     }
@@ -22,22 +22,21 @@ impl Day7 {
 
 impl LineStreamHandler for Day7 {
     fn update(&mut self, line: &str) -> Result<(), Box<dyn Error>> {
+        if self.beams.len() < line.len() {
+            self.beams.resize(line.len(), 0);
+        }
         for (ch, i) in line.chars().zip(0usize..) {
             match ch {
                 'S' => {
-                    self.beams.insert(i, 1);
+                    self.beams[i] = 1;
                 }
                 '^' => {
-                    if let Some(paths) = self.beams.remove(&i) {
+                    let paths = self.beams[i];
+                    if paths > 0 {
                         self.splits += 1;
-                        self.beams
-                            .entry(i - 1)
-                            .and_modify(|existing| *existing += paths)
-                            .or_insert(paths);
-                        self.beams
-                            .entry(i + 1)
-                            .and_modify(|existing| *existing += paths)
-                            .or_insert(paths);
+                        self.beams[i] = 0;
+                        self.beams[i - 1] += paths;
+                        self.beams[i + 1] += paths;
                     }
                 }
                 _ => {}
@@ -51,7 +50,7 @@ impl LineStreamHandler for Day7 {
         println!(
             "[{}] Paths:  {}",
             GOLD_ANSI,
-            self.beams.into_values().sum::<usize>()
+            self.beams.into_iter().sum::<usize>()
         );
         Ok(())
     }
