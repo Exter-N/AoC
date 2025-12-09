@@ -12,15 +12,62 @@ use nom::{
     sequence::separated_pair,
 };
 
+#[derive(Clone, Debug)]
+struct RunVec<T>(Vec<(usize, T)>);
+
+impl<T> RunVec<T> {
+    fn new(end: usize, item: T) -> Self {
+        Self(vec![(end, item)])
+    }
+
+    fn find_run_index(&self, position: usize) -> usize {
+        match self.0.binary_search_by(|(until, _)| until.cmp(&position)) {
+            Ok(index) => index + 1,
+            Err(index) => index,
+        }
+    }
+}
+
+impl<T> RunVec<T>
+where
+    T: Clone,
+{
+    fn split_run_before(&mut self, index: &mut usize, position: usize) {
+        let last_end = if *index > 0 { self.0[*index - 1].0 } else { 0 };
+        if last_end != position {
+            self.0.insert(*index, (position, self.0[*index].1.clone()));
+            *index += 1;
+        }
+    }
+
+    fn split_run_after(&mut self, index: usize, position: usize) {
+        if self.0[index].0 != position + 1 {
+            self.0
+                .insert(index, (position + 1, self.0[index].1.clone()));
+        }
+    }
+
+    fn get_mut(&mut self, position: usize) -> &mut T {
+        let mut index = self.find_run_index(position);
+        self.split_run_before(&mut index, position);
+        self.split_run_after(index, position);
+        &mut self.0[index].1
+    }
+}
+
 fn insert_vertical_bounds(
-    vertical_bounds: &mut Vec<BTreeMap<usize, bool>>,
+    vertical_bounds: &mut RunVec<(MultiRangeInclusive<usize>, BTreeMap<usize, bool>)>,
     x: usize,
     y_start: usize,
     y_end: usize,
     down: bool,
 ) {
-    for y in y_start..=y_end {
-        if vertical_bounds[y].insert(x, down).is_some() {
+    let mut index_start = vertical_bounds.find_run_index(y_start);
+    vertical_bounds.split_run_before(&mut index_start, y_start);
+    let index_end = vertical_bounds.find_run_index(y_end);
+    vertical_bounds.split_run_after(index_end, y_end);
+    for index in index_start..=index_end {
+        if vertical_bounds.0[index].1.1.insert(x, down).is_some() {
             unreachable!();
         }
     }
@@ -43,24 +90,27 @@ impl Day9 {
         self.tiles.iter().map(|tile| tile.1 + 1).max().unwrap_or(0)
     }
 
-    fn interior(&self) -> Vec<(usize, MultiRangeInclusive<usize>)> {
+    fn interior(&self) -> RunVec<MultiRangeInclusive<usize>> {
         if self.tiles.len() < 4 {
-            unreachable!();
+            unimplemented!();
         }
 
-        let mut interior: Vec<MultiRangeInclusive<usize>> =
-            vec![MultiRangeInclusive::new(); self.height()];
-        let mut vertical_bounds: Vec<BTreeMap<usize, bool>> = vec![BTreeMap::new(); interior.len()];
+        let height = self.height();
+        let mut interior_and_vbounds: RunVec<(MultiRangeInclusive<usize>, BTreeMap<usize, bool>)> =
+            RunVec::new(height, (MultiRangeInclusive::new(), BTreeMap::new()));
         let mut previous_point = self.tiles.last().unwrap();
         for point in self.tiles.iter() {
             match previous_point.direction_towards(point) {
                 Some(direction) => match direction {
                     Direction2::Right => {
-                        interior[point.1].insert(previous_point.0..=point.0);
+                        interior_and_vbounds
+                            .get_mut(point.1)
+                            .0
+                            .insert(previous_point.0..=point.0);
                     }
                     Direction2::Down => {
                         insert_vertical_bounds(
-                            &mut vertical_bounds,
+                            &mut interior_and_vbounds,
                             point.0,
                             previous_point.1,
                             point.1,
@@ -68,11 +118,14 @@ impl Day9 {
                         );
                     }
                     Direction2::Left => {
-                        interior[point.1].insert(point.0..=previous_point.0);
+                        interior_and_vbounds
+                            .get_mut(point.1)
+                            .0
+                            .insert(point.0..=previous_point.0);
                     }
                     Direction2::Up => {
                         insert_vertical_bounds(
-                            &mut vertical_bounds,
+                            &mut interior_and_vbounds,
                             point.0,
                             point.1,
                             previous_point.1,
@@ -84,7 +137,7 @@ impl Day9 {
             }
             previous_point = point;
         }
-        for (interior_row, vbound_row) in interior.iter_mut().zip(vertical_bounds.iter()) {
+        for (_, (interior_row, vbound_row)) in interior_and_vbounds.0.iter_mut() {
             if vbound_row.is_empty() {
                 continue;
             }
@@ -97,16 +150,19 @@ impl Day9 {
                 previous_entry = entry;
             }
         }
-        let mut packed_interior: Vec<(usize, MultiRangeInclusive<usize>)> = Vec::new();
-        let mut previous_row = interior.first().unwrap();
-        for (row, i) in interior.iter().skip(1).zip(1usize..) {
-            if row.iter().ne(previous_row.iter()) {
-                packed_interior.push((i, previous_row.clone()));
-                previous_row = row;
+        let mut interior = RunVec(
+            interior_and_vbounds
+                .0
+                .into_iter()
+                .map(|(end, (interior_row, _))| (end, interior_row))
+                .collect_vec(),
+        );
+        for i in (1..interior.0.len()).rev() {
+            if interior.0[i].1.iter().eq(interior.0[i - 1].1.iter()) {
+                interior.0.remove(i - 1);
             }
         }
-        packed_interior.push((interior.len(), previous_row.clone()));
-        packed_interior
+        interior
     }
 }
 
@@ -135,18 +191,10 @@ impl LineStreamHandler for Day9 {
                         } else {
                             tile1.0..=tile2.0
                         };
-                        let y_start =
-                            match interior.binary_search_by(|(until, _)| until.cmp(&tile1.1)) {
-                                Ok(index) => index + 1,
-                                Err(index) => index,
-                            };
-                        let y_end =
-                            match interior.binary_search_by(|(until, _)| until.cmp(&tile2.1)) {
-                                Ok(index) => index + 1,
-                                Err(index) => index,
-                            };
+                        let y_start = interior.find_run_index(tile1.1);
+                        let y_end = interior.find_run_index(tile2.1);
                         for y in y_start..=y_end {
-                            if !interior[y].1.contains_all(&x_range) {
+                            if !interior.0[y].1.contains_all(&x_range) {
                                 return None;
                             }
                         }
