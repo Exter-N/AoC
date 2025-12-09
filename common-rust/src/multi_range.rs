@@ -45,6 +45,35 @@ where
             .binary_search_by(|range| range_cmp(range, value))
             .is_ok()
     }
+
+    pub fn contains_all(&self, value: &RangeInclusive<T>) -> bool {
+        if let Ok(start) = self
+            .0
+            .binary_search_by(|range| range_cmp(range, value.start()))
+        {
+            self.0[start].end() >= value.end()
+        } else {
+            false
+        }
+    }
+
+    pub fn contains_any(&self, value: &RangeInclusive<T>) -> bool {
+        if let Err(start) = self
+            .0
+            .binary_search_by(|range| range_cmp(range, value.start()))
+        {
+            if let Err(end) = self
+                .0
+                .binary_search_by(|range| range_cmp(range, value.end()))
+            {
+                start != end
+            } else {
+                true
+            }
+        } else {
+            true
+        }
+    }
 }
 
 impl<T> MultiRangeInclusive<T>
