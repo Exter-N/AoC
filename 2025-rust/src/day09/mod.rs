@@ -43,7 +43,7 @@ impl Day9 {
         self.tiles.iter().map(|tile| tile.1 + 1).max().unwrap_or(0)
     }
 
-    fn interior(&self) -> Vec<MultiRangeInclusive<usize>> {
+    fn interior(&self) -> Vec<(usize, MultiRangeInclusive<usize>)> {
         if self.tiles.len() < 4 {
             unreachable!();
         }
@@ -97,7 +97,16 @@ impl Day9 {
                 previous_entry = entry;
             }
         }
-        interior
+        let mut packed_interior: Vec<(usize, MultiRangeInclusive<usize>)> = Vec::new();
+        let mut previous_row = interior.first().unwrap();
+        for (row, i) in interior.iter().skip(1).zip(1usize..) {
+            if row.iter().ne(previous_row.iter()) {
+                packed_interior.push((i, previous_row.clone()));
+                previous_row = row;
+            }
+        }
+        packed_interior.push((interior.len(), previous_row.clone()));
+        packed_interior
     }
 }
 
@@ -126,8 +135,18 @@ impl LineStreamHandler for Day9 {
                         } else {
                             tile1.0..=tile2.0
                         };
-                        for y in tile1.1..=tile2.1 {
-                            if !interior[y].contains_all(&x_range) {
+                        let y_start =
+                            match interior.binary_search_by(|(until, _)| until.cmp(&tile1.1)) {
+                                Ok(index) => index + 1,
+                                Err(index) => index,
+                            };
+                        let y_end =
+                            match interior.binary_search_by(|(until, _)| until.cmp(&tile2.1)) {
+                                Ok(index) => index + 1,
+                                Err(index) => index,
+                            };
+                        for y in y_start..=y_end {
+                            if !interior[y].1.contains_all(&x_range) {
                                 return None;
                             }
                         }
