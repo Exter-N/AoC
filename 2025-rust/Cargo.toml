@@ -3,6 +3,9 @@ name = "aoc25-rs"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+z3 = ["dep:z3"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -11,3 +14,4 @@ clap = { version = "4.5.53", features = ["derive"] }
 ilog = "1.0.1"
 itertools = "0.14.0"
 nom = "8.0.0"
+z3 = { version = "0.19.5", optional = true }
