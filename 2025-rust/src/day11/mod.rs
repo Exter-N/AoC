@@ -7,7 +7,9 @@ use aoc_common_rs::{
     cc::ThreeCC,
     day::{Day, GOLD_ANSI, SILVER_ANSI},
     line_stream::{LineStreamHandler, parse_full_string, take_fixed},
+    some_or_break,
 };
+use itertools::Itertools;
 use nom::{
     bytes::complete::tag, character::complete::char, combinator::map, multi::separated_list1,
     sequence::separated_pair,
@@ -20,40 +22,59 @@ const FFT_3CC: ThreeCC = ThreeCC::new('f', 'f', 't');
 const OUT_3CC: ThreeCC = ThreeCC::new('o', 'u', 't');
 
 struct Day11 {
-    devices: HashMap<ThreeCC, HashSet<ThreeCC>>,
+    devices: HashMap<ThreeCC, usize>,
+    outputs: Vec<Vec<usize>>,
 }
 
 impl Day11 {
     fn new() -> Self {
         Self {
             devices: HashMap::new(),
+            outputs: Vec::new(),
         }
     }
 
-    fn next_state(&self, state: HashMap<ThreeCC, usize>) -> HashMap<ThreeCC, usize> {
-        let mut next_state = HashMap::new();
-        for (device, paths) in state.into_iter() {
-            if let Some(outputs) = self.devices.get(&device) {
-                for output in outputs {
-                    next_state
-                        .entry(*output)
-                        .and_modify(|next_paths| *next_paths += paths)
-                        .or_insert(paths);
+    fn get_device_index(&self, device: ThreeCC) -> Option<usize> {
+        self.devices.get(&device).map(|index| *index)
+    }
+
+    fn get_or_create_device_index(&mut self, device: ThreeCC) -> usize {
+        let len = self.devices.len();
+        let index = *self.devices.entry(device).or_insert(len);
+        if index == len {
+            self.outputs.push(Vec::new());
+        }
+        index
+    }
+
+    fn next_state(&self, state: Vec<usize>) -> Option<Vec<usize>> {
+        let mut any = false;
+        let mut next_state = vec![0usize; self.outputs.len()];
+        for (paths, device) in state.into_iter().zip(0usize..) {
+            if paths > 0 {
+                for output in self.outputs[device].iter() {
+                    next_state[*output] += paths;
+                    any = true;
                 }
             }
         }
-        next_state
+        if any { Some(next_state) } else { None }
     }
 
     fn paths_from_to(&self, from: ThreeCC, to: ThreeCC) -> usize {
+        let Some(from_index) = self.get_device_index(from) else {
+            return 0;
+        };
+        let Some(to_index) = self.get_device_index(to) else {
+            return 0;
+        };
         let mut total_paths = 0usize;
-        let mut state = HashMap::new();
-        state.insert(from, 1usize);
-        while !state.is_empty() {
-            state = self.next_state(state);
-            if let Some(paths) = state.remove(&to) {
-                total_paths += paths;
-            }
+        let mut state = vec![0usize; self.outputs.len()];
+        state[from_index] = 1;
+        loop {
+            state = some_or_break!(self.next_state(state));
+            total_paths += state[to_index];
+            state[to_index] = 0;
         }
         total_paths
     }
@@ -72,7 +93,13 @@ impl LineStreamHandler for Day11 {
                 ),
             ),
         )?;
-        self.devices.insert(device, outputs);
+        let device_index = self.get_or_create_device_index(device);
+        let mut output_indices = outputs
+            .into_iter()
+            .map(|output| self.get_or_create_device_index(output))
+            .collect_vec();
+        output_indices.sort();
+        self.outputs[device_index] = output_indices;
         Ok(())
     }
 
