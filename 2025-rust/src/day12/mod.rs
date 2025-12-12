@@ -16,7 +16,8 @@ struct Day12 {
     shapes: Vec<usize>,
     current_shape: usize,
     current_shape_len: usize,
-    fitting_regions: usize,
+    fitting_regions_lbound: usize,
+    fitting_regions_ubound: usize,
 }
 
 impl Day12 {
@@ -25,11 +26,12 @@ impl Day12 {
             shapes: Vec::new(),
             current_shape: 0,
             current_shape_len: 0,
-            fitting_regions: 0,
+            fitting_regions_lbound: 0,
+            fitting_regions_ubound: 0,
         }
     }
 
-    fn can_fit(&self, width: usize, length: usize, quantites: Vec<usize>) -> bool {
+    fn can_fit(&self, width: usize, length: usize, quantites: Vec<usize>) -> Option<bool> {
         if quantites
             .iter()
             .zip(self.shapes.iter())
@@ -37,9 +39,12 @@ impl Day12 {
             .sum::<usize>()
             > width * length
         {
-            return false;
+            return Some(false);
         }
-        true
+        if quantites.iter().sum::<usize>() * 9 <= (width - (width % 2)) * (length - (length % 2)) {
+            return Some(true);
+        }
+        None
     }
 }
 
@@ -90,8 +95,15 @@ impl LineStreamHandler for Day12 {
             ),
         )?;
 
-        if self.can_fit(width, length, quantities) {
-            self.fitting_regions += 1;
+        match self.can_fit(width, length, quantities) {
+            Some(false) => {}
+            None => {
+                self.fitting_regions_ubound += 1;
+            }
+            Some(true) => {
+                self.fitting_regions_lbound += 1;
+                self.fitting_regions_ubound += 1;
+            }
         }
 
         Ok(())
@@ -99,8 +111,12 @@ impl LineStreamHandler for Day12 {
 
     fn finish(self: Box<Self>) -> Result<(), Box<dyn Error>> {
         println!(
+            "[-] Lower bound of fitting regions: {}",
+            self.fitting_regions_lbound
+        );
+        println!(
             "[-] Upper bound of fitting regions: {}",
-            self.fitting_regions
+            self.fitting_regions_ubound
         );
         Ok(())
     }
